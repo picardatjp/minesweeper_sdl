@@ -46,4 +46,5 @@ void renderBoard();
 void newBoard();
 void uncoverCells(int x, int y);
 bool checkWin();
+void manualBomb(int bombs[2][8]);
 #endif

@@ -241,6 +241,11 @@ void newBoard()
     int x, y;
     // seed the rand()
     srand((unsigned)time(0));
+
+    // for debugging only
+    //  int bombs[2][8] = {{0, 5, 6, 6, 7, 8, 5, 3}, {2, 0, 2, 3, 1, 7, 8, 1}};
+    //  manualBomb(bombs);
+
     // while we still have bombs to place
     while (bombs_left > 0)
     {
@@ -346,4 +351,48 @@ bool checkWin()
     }
     // all bombs had flags on them, you won!
     return true;
+}
+
+// for debugging only
+void manualBomb(int bombs[2][8])
+{
+    int x, y;
+    for (int i = 0; i < NUM_BOMBS; i++)
+    {
+        y = bombs[0][i];
+        x = bombs[1][i];
+        board_d[y][x] = 11;
+        if (y > 0 && x > 0 && board_d[y - 1][x - 1] != 11)
+        {
+            board_d[y - 1][x - 1]++;
+        }
+        if (x > 0 && board_d[y][x - 1] != 11)
+        {
+            board_d[y][x - 1]++;
+        }
+        if (y < BOARD_HEIGHT - 1 && x > 0 && board_d[y + 1][x - 1] != 11)
+        {
+            board_d[y + 1][x - 1]++;
+        }
+        if (y > 0 && board_d[y - 1][x] != 11)
+        {
+            board_d[y - 1][x]++;
+        }
+        if (y < BOARD_HEIGHT - 1 && board_d[y + 1][x] != 11)
+        {
+            board_d[y + 1][x]++;
+        }
+        if (y > 0 && x < BOARD_WIDTH - 1 && board_d[y - 1][x + 1] != 11)
+        {
+            board_d[y - 1][x + 1]++;
+        }
+        if (x < BOARD_WIDTH - 1 && board_d[y][x + 1] != 11)
+        {
+            board_d[y][x + 1]++;
+        }
+        if (y < BOARD_HEIGHT - 1 && x < BOARD_WIDTH - 1 && board_d[y + 1][x + 1] != 11)
+        {
+            board_d[y + 1][x + 1]++;
+        }
+    }
 }
