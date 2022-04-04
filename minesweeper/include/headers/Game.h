@@ -7,6 +7,7 @@
 #include <iostream>
 #include <random>
 #include <ctime>
+#include <vector>
 
 // our game class that handles basically everything
 class Game
@@ -18,6 +19,8 @@ private:
     bool isRunning;
     // our game window
     SDL_Window *window;
+    int winHeight = 664;
+    int winWidth = 600;
 
 public:
     // constructor and destructor
@@ -38,6 +41,10 @@ public:
 
     // returns whether the game is currently running or not
     bool running() { return isRunning; }
+    int getWinHeight() { return winHeight; }
+    int getWinWidth() { return winWidth; }
+    void setWinHeight(int h) { winHeight = h; }
+    void setWinWidth(int w) { winWidth = w; }
 
     // our game renderer
     static SDL_Renderer *renderer;

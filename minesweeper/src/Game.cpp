@@ -8,7 +8,11 @@ const char *tileset_path = "res/mtiles.png";
 SDL_Texture *tile_texture;
 // array of source rects
 SDL_Rect tileset[12];
-
+// bg path and texture and rects
+const char *bg_path = "res/bg.png";
+SDL_Texture *bg_texture;
+SDL_Rect bg_srcR;
+SDL_Rect bg_destR;
 // these store mouse click location
 int mouse_x, mouse_y;
 Uint32 button;
@@ -18,17 +22,24 @@ int flag_count = 0;
 bool won;
 bool lost;
 
+// max board width and height
+const int MAX_BOARD_HEIGHT = 30;
+const int MAX_BOARD_WIDTH = 30;
+
 // board size and cell pixel size
-const int BOARD_WIDTH = 10;
-const int BOARD_HEIGHT = 10;
-const int CELL_HEIGHT = 32;
-const int CELL_WIDTH = 32;
+int BOARD_WIDTH = 10;
+int BOARD_HEIGHT = 10;
+int CELL_HEIGHT = 32;
+int CELL_WIDTH = 32;
+int tCELL_HEIGHT = CELL_HEIGHT;
+int tCELL_WIDTH = CELL_WIDTH;
+int TOP_OFFSET = 64;
 // number of bombs in the level
-const int NUM_BOMBS = 8;
+int NUM_BOMBS = 8;
 // board_d is the board description, basically the board fully uncovered
-int board_d[BOARD_HEIGHT][BOARD_WIDTH];
+int board_d[MAX_BOARD_HEIGHT][MAX_BOARD_WIDTH];
 // board_r is the board to be rendered
-int board_r[BOARD_HEIGHT][BOARD_WIDTH];
+int board_r[MAX_BOARD_HEIGHT][MAX_BOARD_WIDTH];
 
 // Game Constructor
 Game::Game()
@@ -88,6 +99,8 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
     // create a surface, create texture from that surface, free the surface
     SDL_Surface *tempSurface = IMG_Load(tileset_path);
     tile_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    tempSurface = IMG_Load(bg_path);
+    bg_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     SDL_FreeSurface(tempSurface);
     // set source rects to capture each part of our tilesheet. there are 12 32x32 tiles all laid our horizontally in our texture
     // (x,y) is start of rect, (w,h) is end of rect, so each source rect has one tile picture thing associated with it
@@ -95,10 +108,18 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
     for (int i = 0; i < 12; i++)
     {
         tileset[i].y = 0;
-        tileset[i].x = i * CELL_WIDTH;
-        tileset[i].w = CELL_WIDTH;
-        tileset[i].h = CELL_HEIGHT;
+        tileset[i].x = i * tCELL_WIDTH;
+        tileset[i].w = tCELL_WIDTH;
+        tileset[i].h = tCELL_HEIGHT;
     }
+    bg_srcR.x = bg_srcR.y = 0;
+    bg_srcR.h = 544;
+    bg_srcR.w = getWinWidth();
+    bg_destR.h = getWinHeight();
+    bg_destR.w = getWinWidth();
+    bg_destR.x = bg_destR.y = 0;
+    CELL_HEIGHT = (getWinHeight() - TOP_OFFSET) / BOARD_HEIGHT;
+    CELL_WIDTH = getWinWidth() / BOARD_WIDTH;
     // create a new board cause the program just started
     newBoard();
 }
@@ -123,8 +144,8 @@ void Game::handleEvents()
         // get the x and y of where they released it
         button = SDL_GetMouseState(&mouse_x, &mouse_y);
         // get what cell was clicked
-        mouse_x = floor(mouse_x / 32);
-        mouse_y = floor(mouse_y / 32);
+        mouse_x = floor(mouse_x / CELL_WIDTH);
+        mouse_y = floor((mouse_y - TOP_OFFSET) / CELL_HEIGHT);
         // left click means we uncover cells
         if (event.button.button == SDL_BUTTON_LEFT && !lost)
         {
@@ -135,7 +156,7 @@ void Game::handleEvents()
                 uncoverCells(mouse_x, mouse_y);
             }
         }
-        // right click means we flag cells, don't want to change flags if you already won
+        // right click means we flag cells, don't want to change flags if you already won or lost
         else if (event.button.button == SDL_BUTTON_RIGHT && !won && !lost)
         {
             // if cell is covered
@@ -186,6 +207,7 @@ void Game::render()
     // clears the screen
     SDL_RenderClear(renderer);
     // render our board
+    SDL_RenderCopy(renderer, bg_texture, &bg_srcR, &bg_destR);
     renderBoard();
     //  actually write to the screen
     SDL_RenderPresent(renderer);
@@ -207,15 +229,16 @@ void renderBoard()
 {
     // set destination rect to size 32x32
     SDL_Rect r;
-    r.w = r.h = 32;
+    r.w = CELL_WIDTH;
+    r.h = CELL_HEIGHT;
     // go through every cell in board_r
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < BOARD_HEIGHT; i++)
     {
         // every cell we draw is CELL_HEIGHT x CELL_WIDTH so we offset by those values
-        r.y = i * 32;
-        for (int j = 0; j < 10; j++)
+        r.y = i * CELL_HEIGHT + TOP_OFFSET;
+        for (int j = 0; j < BOARD_HEIGHT; j++)
         {
-            r.x = j * 32;
+            r.x = j * CELL_WIDTH;
             // display our offset cell based on the value in board_r
             SDL_RenderCopy(Game::renderer, tile_texture, &tileset[board_r[i][j]], &r);
         }
@@ -306,6 +329,8 @@ void uncoverCells(int x, int y)
     if (board_d[y][x] == 11)
     {
         // we lost :P
+        // display the bomb
+        board_r[y][x] = board_d[y][x];
         std::cout << "you lost" << std::endl;
         lost = true;
         // do losing stuff here

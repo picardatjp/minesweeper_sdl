@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     game = new Game();
 
     // initialize our game
-    game->init("my game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 640, false);
+    game->init("my game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, game->getWinWidth(), game->getWinHeight(), false);
 
     // game loop, stops when Game::isRunning is false
     while (game->running())
