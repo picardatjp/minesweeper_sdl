@@ -33,9 +33,10 @@ int CELL_HEIGHT = 32;
 int CELL_WIDTH = 32;
 int tCELL_HEIGHT = CELL_HEIGHT;
 int tCELL_WIDTH = CELL_WIDTH;
+// top banner is 64 pixels tall
 int TOP_OFFSET = 64;
 // number of bombs in the level
-int NUM_BOMBS = 8;
+int NUM_BOMBS = 10;
 // board_d is the board description, basically the board fully uncovered
 int board_d[MAX_BOARD_HEIGHT][MAX_BOARD_WIDTH];
 // board_r is the board to be rendered
@@ -96,7 +97,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
         // no longer running
         isRunning = false;
     }
-    // create a surface, create texture from that surface, free the surface
+    // create a surface, create textures from that surface, free the surface
     SDL_Surface *tempSurface = IMG_Load(tileset_path);
     tile_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     tempSurface = IMG_Load(bg_path);
@@ -114,12 +115,13 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
     }
     bg_srcR.x = bg_srcR.y = 0;
     bg_srcR.h = 544;
-    bg_srcR.w = getWinWidth();
+    bg_srcR.w = 480;
     bg_destR.h = getWinHeight();
     bg_destR.w = getWinWidth();
     bg_destR.x = bg_destR.y = 0;
     CELL_HEIGHT = (getWinHeight() - TOP_OFFSET) / BOARD_HEIGHT;
     CELL_WIDTH = getWinWidth() / BOARD_WIDTH;
+
     // create a new board cause the program just started
     newBoard();
 }
@@ -216,8 +218,9 @@ void Game::render()
 // clean up memory and close SDL
 void Game::clean()
 {
-    // destroy our spritesheet texture, window, renderer and quit all SDL processes
+    // destroy our textures, window, renderer and quit all SDL processes
     SDL_DestroyTexture(tile_texture);
+    SDL_DestroyTexture(bg_texture);
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();

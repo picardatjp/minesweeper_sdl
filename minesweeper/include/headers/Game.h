@@ -7,7 +7,6 @@
 #include <iostream>
 #include <random>
 #include <ctime>
-#include <vector>
 
 // our game class that handles basically everything
 class Game
@@ -19,6 +18,7 @@ private:
     bool isRunning;
     // our game window
     SDL_Window *window;
+    // window width and height
     int winHeight = 664;
     int winWidth = 600;
 
@@ -41,6 +41,7 @@ public:
 
     // returns whether the game is currently running or not
     bool running() { return isRunning; }
+    // getter and setter for window height and width
     int getWinHeight() { return winHeight; }
     int getWinWidth() { return winWidth; }
     void setWinHeight(int h) { winHeight = h; }
@@ -49,9 +50,15 @@ public:
     // our game renderer
     static SDL_Renderer *renderer;
 };
+
+// renders the minewsweeper board
 void renderBoard();
+// resets the board and changes bomb locations
 void newBoard();
+// uncovers cells whenever the user clicks on a cell
 void uncoverCells(int x, int y);
+// checks to see if the user won
 bool checkWin();
+// allows for manual placement of bombs
 void manualBomb(int bombs[2][8]);
 #endif
