@@ -1,2 +1,2 @@
-# minesweeper_sdl
+# sdl_projects
 
