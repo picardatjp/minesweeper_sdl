@@ -61,4 +61,9 @@ void uncoverCells(int x, int y);
 bool checkWin();
 // allows for manual placement of bombs
 void manualBomb(int bombs[2][8]);
+// updates and renders timer to the screen
+void renderTimer();
+// get and reset timer seconds
+int getTimeElapsed();
+void resetTimer();
 #endif
