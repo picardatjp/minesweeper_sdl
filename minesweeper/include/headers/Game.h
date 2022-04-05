@@ -66,4 +66,6 @@ void renderTimer();
 // get and reset timer seconds
 int getTimeElapsed();
 void resetTimer();
+
+void renderButton();
 #endif

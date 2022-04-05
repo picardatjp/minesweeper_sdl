@@ -7,7 +7,7 @@ const char *tileset_path = "res/mtiles.png";
 // our texture
 SDL_Texture *tile_texture;
 // array of source rects
-SDL_Rect tileset[24];
+SDL_Rect tileset[27];
 // icon path
 const char *icon_path = "res/icon.png";
 // bg path and texture and rects
@@ -15,6 +15,7 @@ const char *bg_path = "res/bg.png";
 SDL_Texture *bg_texture;
 SDL_Rect bg_srcR;
 SDL_Rect bg_destR;
+SDL_Rect smile_buttonR;
 // these store mouse click location
 int mouse_x_cell, mouse_y_cell, mouse_x, mouse_y;
 Uint32 button;
@@ -120,7 +121,8 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
     // set source rects to capture each part of our tilesheet. there are 12 32x32 tiles all laid our horizontally in our texture
     // (x,y) is start of rect, (w,h) is end of rect, so each source rect has one tile picture thing associated with it
     // 0 = empty cell, 1-8 = 1-8, 9 = covered cell, 10 = flagged cell, 11 = bomb eg. tileset[7] == tile from our texture that is a cell with the number 7 on it
-    for (int i = 0; i < 24; i++)
+    // 12 = empty clock tile, 13-22 = 1-9 clock numbers,
+    for (int i = 0; i < 27; i++)
     {
         tileset[i].y = 0;
         tileset[i].x = i * tCELL_WIDTH;
@@ -136,6 +138,12 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
     CELL_HEIGHT = (getWinHeight() - TOP_OFFSET) / BOARD_HEIGHT;
     CELL_WIDTH = getWinWidth() / BOARD_WIDTH;
     window_width = Game::getWinWidth();
+
+    // set smile button location (this is for destRect)
+    smile_buttonR.h = tCELL_HEIGHT;
+    smile_buttonR.w = tCELL_WIDTH;
+    smile_buttonR.x = (window_width / 2) - (tCELL_WIDTH / 2);
+    smile_buttonR.y = tCELL_HEIGHT / 2;
     // create a new board cause the program just started
     newBoard();
 }
@@ -162,50 +170,61 @@ void Game::handleEvents()
         // get what cell was clicked
         mouse_x_cell = floor(mouse_x / CELL_WIDTH);
         mouse_y_cell = floor((mouse_y - TOP_OFFSET) / CELL_HEIGHT);
-        // left click means we uncover cells
-        if (event.button.button == SDL_BUTTON_LEFT && !lost)
+        // if we clicked inside the game board
+        if (mouse_y > TOP_OFFSET)
         {
-            // if cell clicked was covered
-            if (board_r[mouse_y_cell][mouse_x_cell] == 9)
+            // left click means we uncover cells
+            if (event.button.button == SDL_BUTTON_LEFT && !lost)
             {
-                // we uncover all the cells neighboring the one clicked
-                uncoverCells(mouse_x_cell, mouse_y_cell);
+                // if cell clicked was covered
+                if (board_r[mouse_y_cell][mouse_x_cell] == 9)
+                {
+                    // we uncover all the cells neighboring the one clicked
+                    uncoverCells(mouse_x_cell, mouse_y_cell);
+                }
+            }
+            // right click means we flag cells, don't want to change flags if you already won or lost
+            else if (event.button.button == SDL_BUTTON_RIGHT && !won && !lost)
+            {
+                // if cell is covered
+                if (board_r[mouse_y_cell][mouse_x_cell] == 9)
+                {
+                    // put a flag on it and increase our flag count
+                    board_r[mouse_y_cell][mouse_x_cell] = 10;
+                    flag_count++;
+                    // if we have the same number of flags as bombs we can check to see if the user won
+                    if (flag_count == NUM_BOMBS && checkWin())
+                    {
+                        // win animation here
+                        std::cout << "you won" << std::endl;
+                        won = true;
+                    }
+                }
+                // if the user clicked on a flag
+                else if (board_r[mouse_y_cell][mouse_x_cell] == 10)
+                {
+                    // take the flag off the cell and decrement our counter
+                    board_r[mouse_y_cell][mouse_x_cell] = 9;
+                    flag_count--;
+                    // we can check if the user won
+                    if (flag_count == NUM_BOMBS && checkWin())
+                    {
+                        // win animation here
+                        std::cout << "you won" << std::endl;
+                        won = true;
+                    }
+                }
             }
         }
-        // right click means we flag cells, don't want to change flags if you already won or lost
-        else if (event.button.button == SDL_BUTTON_RIGHT && !won && !lost)
+        // if we clicked smiley button
+        if (mouse_x > (window_width / 2 - tCELL_WIDTH / 2) && mouse_x < (window_width / 2 + tCELL_WIDTH / 2) && mouse_y > (tCELL_HEIGHT / 2) && mouse_y < (tCELL_HEIGHT + (tCELL_HEIGHT / 2)))
         {
-            // if cell is covered
-            if (board_r[mouse_y_cell][mouse_x_cell] == 9)
-            {
-                // put a flag on it and increase our flag count
-                board_r[mouse_y_cell][mouse_x_cell] = 10;
-                flag_count++;
-                // if we have the same number of flags as bombs we can check to see if the user won
-                if (flag_count == NUM_BOMBS && checkWin())
-                {
-                    // win animation here
-                    std::cout << "you won" << std::endl;
-                    won = true;
-                }
-            }
-            // if the user clicked on a flag
-            else if (board_r[mouse_y_cell][mouse_x_cell] == 10)
-            {
-                // take the flag off the cell and decrement our counter
-                board_r[mouse_y_cell][mouse_x_cell] = 9;
-                flag_count--;
-                // we can check if the user won
-                if (flag_count == NUM_BOMBS && checkWin())
-                {
-                    // win animation here
-                    std::cout << "you won" << std::endl;
-                    won = true;
-                }
-            }
+            // start a new game
+            newBoard();
         }
         break;
     case SDL_KEYUP:
+        // pressing "q" resets the game just like the smiley button
         if (event.key.keysym.scancode == SDL_SCANCODE_Q)
         {
             newBoard();
@@ -217,7 +236,7 @@ void Game::handleEvents()
     }
 }
 
-// update game objects here eg. sprite locations adn whatnot
+// update game objects here eg. sprite locations and whatnot
 void Game::update()
 {
     // i dont even use this, why did i make this
@@ -231,6 +250,7 @@ void Game::render()
     // render our background, timer, and then our game board
     SDL_RenderCopy(renderer, bg_texture, &bg_srcR, &bg_destR);
     renderTimer();
+    renderButton();
     renderBoard();
     //  actually write to the screen
     SDL_RenderPresent(renderer);
@@ -274,6 +294,7 @@ void newBoard()
 {
     won = false;
     lost = false;
+    flag_count = 0;
     // set board_d to empty cells and board_r to covered cells
     for (int i = 0; i < BOARD_HEIGHT; i++)
     {
@@ -452,14 +473,14 @@ void renderTimer()
     SDL_Rect r;
     r.w = tCELL_WIDTH;
     r.h = tCELL_HEIGHT;
-    r.y = 16;
-    r.x = window_width - (tCELL_WIDTH * 3) - 16;
+    r.y = tCELL_HEIGHT / 2;
+    r.x = window_width - (tCELL_WIDTH * 3) - (tCELL_WIDTH / 2);
     SDL_RenderCopy(Game::renderer, tile_texture, &tileset[12], &r);
     r.x += tCELL_WIDTH;
     SDL_RenderCopy(Game::renderer, tile_texture, &tileset[12], &r);
     r.x += tCELL_WIDTH;
     SDL_RenderCopy(Game::renderer, tile_texture, &tileset[12], &r);
-    r.x = window_width - (tCELL_WIDTH * 3) - 16;
+    r.x = window_width - (tCELL_WIDTH * 3) - (tCELL_WIDTH / 2);
     if (timer_seconds < 999)
     {
         SDL_RenderCopy(Game::renderer, tile_texture, &tileset[(int)(timer_seconds / 100) + timer_cells_offset], &r);
@@ -485,4 +506,23 @@ int getTimeElapsed()
     timer_end = SDL_GetTicks();
     return (int)((timer_end - timer_start) / 1000);
 }
-void resetTimer() { timer_start = timer_end = SDL_GetTicks(); }
+void resetTimer()
+{
+    timer_start = timer_end = SDL_GetTicks();
+}
+
+void renderButton()
+{
+    if (won)
+    {
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[25], &smile_buttonR);
+    }
+    else if (lost)
+    {
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[24], &smile_buttonR);
+    }
+    else
+    {
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[23], &smile_buttonR);
+    }
+}
