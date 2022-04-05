@@ -8,6 +8,8 @@ const char *tileset_path = "res/mtiles.png";
 SDL_Texture *tile_texture;
 // array of source rects
 SDL_Rect tileset[24];
+// icon path
+const char *icon_path = "res/icon.png";
 // bg path and texture and rects
 const char *bg_path = "res/bg.png";
 SDL_Texture *bg_texture;
@@ -104,12 +106,17 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
         // no longer running
         isRunning = false;
     }
-    // create a surface, create textures from that surface, free the surface
+    // create a surface, create textures from that surface
     SDL_Surface *tempSurface = IMG_Load(tileset_path);
     tile_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     tempSurface = IMG_Load(bg_path);
     bg_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    // set window icon
+    tempSurface = IMG_Load(icon_path);
+    SDL_SetWindowIcon(window, tempSurface);
+    // free the surface, we don't need it anymore
     SDL_FreeSurface(tempSurface);
+
     // set source rects to capture each part of our tilesheet. there are 12 32x32 tiles all laid our horizontally in our texture
     // (x,y) is start of rect, (w,h) is end of rect, so each source rect has one tile picture thing associated with it
     // 0 = empty cell, 1-8 = 1-8, 9 = covered cell, 10 = flagged cell, 11 = bomb eg. tileset[7] == tile from our texture that is a cell with the number 7 on it
