@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "Game.hpp"
 
 // our static renderer
 SDL_Renderer *Game::renderer = nullptr;
@@ -76,14 +76,12 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
     // SDL_Init returns 0 if everything went well
     if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
     {
-        std::cout << "SDL initialized successfully." << std::endl;
+        // std::cout << "SDL initialized successfully." << std::endl;
 
         // we create the window here
         window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
-        if (window)
-            std::cout << "Window created successfully." << std::endl;
-        else
+        if (!window)
             std::cout << "Failed to create window." << std::endl;
 
         // create our renderer (not sure what the -1 and 0 are)
@@ -92,7 +90,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
         {
             // set the screen to black
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            std::cout << "Renderer created successfully." << std::endl;
+            // std::cout << "Renderer created successfully." << std::endl;
         }
         else
             std::cout << "Failed to create renderer." << std::endl;
@@ -137,7 +135,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height, bo
     bg_destR.x = bg_destR.y = 0;
     CELL_HEIGHT = (getWinHeight() - TOP_OFFSET) / BOARD_HEIGHT;
     CELL_WIDTH = getWinWidth() / BOARD_WIDTH;
-    window_width = Game::getWinWidth();
+    window_width = getWinWidth();
 
     // set smile button location (this is for destRect)
     smile_buttonR.h = tCELL_HEIGHT;
@@ -196,7 +194,7 @@ void Game::handleEvents()
                     if (flag_count == NUM_BOMBS && checkWin())
                     {
                         // win animation here
-                        std::cout << "you won" << std::endl;
+                        // std::cout << "you won" << std::endl;
                         won = true;
                     }
                 }
@@ -210,7 +208,7 @@ void Game::handleEvents()
                     if (flag_count == NUM_BOMBS && checkWin())
                     {
                         // win animation here
-                        std::cout << "you won" << std::endl;
+                        // std::cout << "you won" << std::endl;
                         won = true;
                     }
                 }
@@ -377,7 +375,7 @@ void uncoverCells(int x, int y)
         // we lost :P
         // display the bomb
         board_r[y][x] = board_d[y][x];
-        std::cout << "you lost" << std::endl;
+        // std::cout << "you lost" << std::endl;
         lost = true;
         // do losing stuff here
         return;

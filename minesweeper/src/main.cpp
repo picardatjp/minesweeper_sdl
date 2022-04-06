@@ -1,4 +1,4 @@
-#include "Game.h"
+#include "Game.hpp"
 
 // global game
 Game *game = nullptr;
