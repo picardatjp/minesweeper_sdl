@@ -93,14 +93,14 @@ void Game::attack(int a_tile, int b_tile)
     }
 }
 
-bool Game::addTileEdge(std::vector<std::vector<int>> &v, int a_id, int b_id)
+bool Game::addTileEdge(int a_id, int b_id)
 {
     // if the edge doesn't exist
-    if (std::find(v[a_id].begin(), v[a_id].end(), b_id) == v[a_id].end())
+    if (std::find(tiles_adj_list[a_id].begin(), tiles_adj_list[a_id].end(), b_id) == tiles_adj_list[a_id].end())
     {
         // add edge in both directions
-        v[a_id].push_back(b_id);
-        v[b_id].push_back(a_id);
+        tiles_adj_list[a_id].push_back(b_id);
+        tiles_adj_list[b_id].push_back(a_id);
         // we successfully added the edge
         return true;
     }
@@ -108,18 +108,57 @@ bool Game::addTileEdge(std::vector<std::vector<int>> &v, int a_id, int b_id)
     return false;
 }
 
-void Game::addNewTile(std::vector<tile> &v, int team, int dice)
+void Game::addNewTile(int team, int dice)
 {
     // create a new tile
-    tile t = {(int)v.size(), team, dice};
+    tile t = {(int)tiles.size(), team, dice};
     // add it to the vector passed
-    v.push_back(t);
+    tiles.push_back(t);
 }
 
-void Game::clearTileData(std::vector<tile> &v1, std::vector<std::vector<int>> &v2)
+void Game::clearTileData()
 {
     // set the first vector to size=0, and set all the elements of the second vector to an empty vector
-    v1.clear();
+    tiles.clear();
     std::vector<int> v;
-    std::fill(v2.begin(), v2.end(), v);
+    std::fill(tiles_adj_list.begin(), tiles_adj_list.end(), v);
+}
+
+void Game::endTurn(int team)
+{
+}
+
+void Game::addDiceToTiles(int team, int num_dice)
+{
+    // get seed for rand()
+    unsigned int s = time(0);
+    srand(s);
+    // to store all the tiles of the team we are looking at
+    std::vector<tile> v_t;
+    // go through all tiles
+    for (tile t : tiles)
+    {
+        // if the tile is the same as our team we add it to our vector
+        if (t.team = team)
+            v_t.push_back(t);
+    }
+    int x;
+    for (int i = 0; i < num_dice; i++)
+    {
+        // set x to zero so we go into the while loop
+        x = 0;
+        // rand() % n is biased to 0 so we exclude it
+        while (x < 1)
+        {
+            // get random number 1-v_t.size()
+            x = rand() % (v_t.size() + 1);
+        }
+        // x-1 to bring zero back
+        // x-1 is our index of the tile that we increase the dice on
+        v_t[x - 1].num_dice++;
+    }
+}
+
+void Game::newBoard()
+{
 }

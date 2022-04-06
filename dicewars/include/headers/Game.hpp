@@ -47,17 +47,17 @@ public:
     // if a_tile loses then leave a_tile with only one die
     void attack(int a_tile, int b_tile);
     // adds new tile to our game
-    void addNewTile(std::vector<tile> &v, int team, int dice);
+    void addNewTile(int team, int dice);
     // adds a new edge between tiles, used to see which tiles are touching eachother
-    bool addTileEdge(std::vector<std::vector<int>> &v, int a_id, int b_id);
+    bool addTileEdge(int a_id, int b_id);
     // ends the turn and next player can make their move
     void endTurn(int team);
     // adds dice to a teams tiles
     void addDiceToTiles(int team, int num_dice);
     // sets everything up for a new game. creates a new board with new tiles and such
-    void newBoard(std::vector<tile> &v, int team, int dice);
+    void newBoard();
 
-    void clearTileData(std::vector<tile> &v1, std::vector<std::vector<int>> &v2);
+    void clearTileData();
 };
 
 #endif
