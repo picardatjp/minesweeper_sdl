@@ -1,4 +1,3 @@
-#include "rc.hpp"
 #include "Screen.hpp"
 
 // global game

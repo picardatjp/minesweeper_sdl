@@ -1,5 +1,4 @@
 #include "Screen.hpp"
-#include "rc.hpp"
 
 // our static renderer
 SDL_Renderer *Screen::renderer = nullptr;
