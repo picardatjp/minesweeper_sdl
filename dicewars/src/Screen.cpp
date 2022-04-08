@@ -7,6 +7,8 @@
 // global renderer pointer
 SDL_Renderer *Screen::renderer = nullptr;
 
+Game *game = nullptr;
+
 // Game Constructor
 Screen::Screen()
 {
@@ -60,6 +62,9 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         // no longer running
         isRunning = false;
     }
+
+    // start game here
+    game = new Game();
 }
 
 void Screen::handleEvents()

@@ -58,6 +58,15 @@ public:
     void newBoard();
 
     void clearTileData();
+
+    int getNumOfTiles() const { return NUM_OF_TILES; }
+
+    int getNumStartDice() const { return NUM_START_DICE; }
+
+    int getMaxDice() const { return MAX_DICE; }
+
+    // might delete this, i dont know how useful it will be to the screen class
+    tile getTile(int i) { return tiles[i]; }
 };
 
 #endif
