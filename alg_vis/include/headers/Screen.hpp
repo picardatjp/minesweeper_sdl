@@ -32,6 +32,8 @@ private:
     std::vector<std::pair<int, int>> compares;
     int compares_index = 0;
     int ribbon_offset = 64;
+    int sort_method = 0;
+    int speed = 4;
 
 public:
     // constructor and destructor
@@ -66,8 +68,15 @@ public:
     void setUpdateTime();
     void randomizeValues();
 
-    void bubbleSort(std::vector<int>);
+    void bubbleSort(std::vector<int> v);
     void swap(int &a, int &b);
+    int partition(std::vector<int> &v, int low, int high);
+    void quickSort(std::vector<int> v, int low, int high);
+    void merge(std::vector<int> &v, int left, int middle, int right);
+    void mergeSort(std::vector<int> v, int begin, int end);
+    void heapify(std::vector<int> &v, int n, int i);
+    void heapSort(std::vector<int> v);
+    void wait();
 
     // our screen renderer
 
