@@ -248,6 +248,7 @@ void Game::render()
     // render our background, timer, and then our game board
     SDL_RenderCopy(renderer, bg_texture, &bg_srcR, &bg_destR);
     renderTimer();
+    renderBombCount();
     renderButton();
     renderBoard();
     //  actually write to the screen
@@ -373,8 +374,18 @@ void uncoverCells(int x, int y)
     if (board_d[y][x] == 11)
     {
         // we lost :P
-        // display the bomb
-        board_r[y][x] = board_d[y][x];
+        // display all the bombs
+        for (int i = 0; i < BOARD_HEIGHT; i++)
+        {
+            for (int j = 0; j < BOARD_WIDTH; j++)
+            {
+                if (board_d[i][j] == 11 && board_r[i][j] != 10)
+                {
+                    board_r[i][j] = 11;
+                }
+            }
+        }
+        // board_r[y][x] = board_d[y][x];
         // std::cout << "you lost" << std::endl;
         lost = true;
         // do losing stuff here
@@ -463,6 +474,37 @@ void manualBomb(int bombs[2][8])
         {
             board_d[y + 1][x + 1]++;
         }
+    }
+}
+
+void renderBombCount()
+{
+    SDL_Rect r;
+    r.w = tCELL_WIDTH;
+    r.h = tCELL_HEIGHT;
+    r.y = tCELL_HEIGHT / 2;
+    r.x = (tCELL_WIDTH / 2);
+    SDL_RenderCopy(Game::renderer, tile_texture, &tileset[12], &r);
+    r.x += tCELL_WIDTH;
+    SDL_RenderCopy(Game::renderer, tile_texture, &tileset[12], &r);
+    r.x += tCELL_WIDTH;
+    SDL_RenderCopy(Game::renderer, tile_texture, &tileset[12], &r);
+    r.x = (tCELL_WIDTH / 2);
+    if (NUM_BOMBS - flag_count < 999)
+    {
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[(int)((NUM_BOMBS - flag_count) / 100) + timer_cells_offset], &r);
+        r.x += tCELL_WIDTH;
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[(int)((int)((NUM_BOMBS - flag_count) / 10) % 10) + timer_cells_offset], &r);
+        r.x += tCELL_WIDTH;
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[(int)((NUM_BOMBS - flag_count) % 10) + timer_cells_offset], &r);
+    }
+    else
+    {
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[22], &r);
+        r.x += tCELL_WIDTH;
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[22], &r);
+        r.x += tCELL_WIDTH;
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[22], &r);
     }
 }
 
