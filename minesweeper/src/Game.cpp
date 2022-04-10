@@ -37,8 +37,8 @@ const int MAX_BOARD_HEIGHT = 30;
 const int MAX_BOARD_WIDTH = 30;
 
 // board size and cell pixel size
-int BOARD_WIDTH = 20;
-int BOARD_HEIGHT = 20;
+int BOARD_WIDTH = 10;
+int BOARD_HEIGHT = 10;
 int CELL_HEIGHT = 32;
 int CELL_WIDTH = 32;
 int tCELL_HEIGHT = CELL_HEIGHT;
