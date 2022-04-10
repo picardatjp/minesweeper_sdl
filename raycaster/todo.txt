@@ -1,4 +1,1 @@
-display number of bombs at top left
-be able to change number of bombs and board size
-make smiley button darker when you click on it
-uncover all bombs without flags when you lose, uncover incorrectly flagged cells with an X over it. need new tile for that
+add textures to walls
