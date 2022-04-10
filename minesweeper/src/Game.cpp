@@ -37,8 +37,8 @@ const int MAX_BOARD_HEIGHT = 30;
 const int MAX_BOARD_WIDTH = 30;
 
 // board size and cell pixel size
-int BOARD_WIDTH = 10;
-int BOARD_HEIGHT = 10;
+int BOARD_WIDTH = 20;
+int BOARD_HEIGHT = 20;
 int CELL_HEIGHT = 32;
 int CELL_WIDTH = 32;
 int tCELL_HEIGHT = CELL_HEIGHT;
@@ -46,7 +46,7 @@ int tCELL_WIDTH = CELL_WIDTH;
 // top banner is 64 pixels tall
 int TOP_OFFSET = 64;
 // number of bombs in the level
-int NUM_BOMBS = 10;
+int NUM_BOMBS = 12;
 // board_d is the board description, basically the board fully uncovered
 int board_d[MAX_BOARD_HEIGHT][MAX_BOARD_WIDTH];
 // board_r is the board to be rendered
@@ -223,8 +223,31 @@ void Game::handleEvents()
         break;
     case SDL_KEYUP:
         // pressing "q" resets the game just like the smiley button
-        if (event.key.keysym.scancode == SDL_SCANCODE_Q)
+        if (event.key.keysym.scancode == SDL_SCANCODE_1)
         {
+            BOARD_HEIGHT = 10;
+            BOARD_WIDTH = 10;
+            NUM_BOMBS = 12;
+            CELL_HEIGHT = (getWinHeight() - TOP_OFFSET) / BOARD_HEIGHT;
+            CELL_WIDTH = getWinWidth() / BOARD_WIDTH;
+            newBoard();
+        }
+        if (event.key.keysym.scancode == SDL_SCANCODE_2)
+        {
+            BOARD_HEIGHT = 16;
+            BOARD_WIDTH = 16;
+            NUM_BOMBS = 30;
+            CELL_HEIGHT = (getWinHeight() - TOP_OFFSET) / BOARD_HEIGHT;
+            CELL_WIDTH = getWinWidth() / BOARD_WIDTH;
+            newBoard();
+        }
+        if (event.key.keysym.scancode == SDL_SCANCODE_3)
+        {
+            BOARD_HEIGHT = 20;
+            BOARD_WIDTH = 20;
+            NUM_BOMBS = 40;
+            CELL_HEIGHT = (getWinHeight() - TOP_OFFSET) / BOARD_HEIGHT;
+            CELL_WIDTH = getWinWidth() / BOARD_WIDTH;
             newBoard();
         }
         break;
@@ -279,7 +302,7 @@ void renderBoard()
     {
         // every cell we draw is CELL_HEIGHT x CELL_WIDTH so we offset by those values
         r.y = i * CELL_HEIGHT + TOP_OFFSET;
-        for (int j = 0; j < BOARD_HEIGHT; j++)
+        for (int j = 0; j < BOARD_WIDTH; j++)
         {
             r.x = j * CELL_WIDTH;
             // display our offset cell based on the value in board_r
@@ -317,8 +340,8 @@ void newBoard()
     while (bombs_left > 0)
     {
         // get random coordinates to place a bomb at
-        x = rand() % 10;
-        y = rand() % 10;
+        x = rand() % BOARD_WIDTH;
+        y = rand() % BOARD_HEIGHT;
         // if there isn't already a bomb here
         if (board_d[y][x] != 11)
         {
@@ -379,9 +402,15 @@ void uncoverCells(int x, int y)
         {
             for (int j = 0; j < BOARD_WIDTH; j++)
             {
+                // if there is a bomb not covered by flag set it to show bomb
                 if (board_d[i][j] == 11 && board_r[i][j] != 10)
                 {
                     board_r[i][j] = 11;
+                }
+                // if there is falg with no bomb under it set it to bomb with X over it
+                if (board_r[i][j] == 10 && board_d[i][j] != 11)
+                {
+                    board_r[i][j] = 26;
                 }
             }
         }
@@ -490,7 +519,7 @@ void renderBombCount()
     r.x += tCELL_WIDTH;
     SDL_RenderCopy(Game::renderer, tile_texture, &tileset[12], &r);
     r.x = (tCELL_WIDTH / 2);
-    if (NUM_BOMBS - flag_count < 999)
+    if (NUM_BOMBS - flag_count > 0)
     {
         SDL_RenderCopy(Game::renderer, tile_texture, &tileset[(int)((NUM_BOMBS - flag_count) / 100) + timer_cells_offset], &r);
         r.x += tCELL_WIDTH;
@@ -500,11 +529,11 @@ void renderBombCount()
     }
     else
     {
-        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[22], &r);
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[13], &r);
         r.x += tCELL_WIDTH;
-        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[22], &r);
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[13], &r);
         r.x += tCELL_WIDTH;
-        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[22], &r);
+        SDL_RenderCopy(Game::renderer, tile_texture, &tileset[13], &r);
     }
 }
 

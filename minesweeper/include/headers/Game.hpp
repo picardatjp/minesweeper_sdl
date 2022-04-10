@@ -19,8 +19,8 @@ private:
     // our game window
     SDL_Window *window;
     // window width and height
-    int winHeight = 664;
-    int winWidth = 600;
+    int winHeight = 704;
+    int winWidth = 640;
 
 public:
     // constructor and destructor
