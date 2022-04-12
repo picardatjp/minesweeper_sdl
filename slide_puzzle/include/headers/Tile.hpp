@@ -5,6 +5,7 @@
 
 struct Tile
 {
+    int id;
     SDL_Rect src;
     SDL_Rect dest;
 };

@@ -21,22 +21,16 @@ private:
     // tile width and height
     int TILE_WIDTH = 10;
     int TILE_HEIGHT = 10;
-    int BOARD_HEIGHT = 10;
-    int BOARD_WIDTH = 10;
+    // int BOARD_HEIGHT = 4;
+    // int BOARD_WIDTH = 4;
     SDL_Texture *texture;
     SDL_Rect tileset[16];
     Tile tiles[16];
     bool mouseDown = false;
     int initMX = 0;
     int initMY = 0;
-    int initTX = 0;
-    int initTY = 0;
     int initMX_offset = 0;
     int initMY_offset = 0;
-    // values to be sorted
-    SDL_Rect board[16];
-    // number of integers in values
-    int values_size;
     // used to calculate how long it has been since the bar graph was updated
     Uint32 change_time_start = 0;
     Uint32 change_time_end = 0;
@@ -87,6 +81,8 @@ public:
 
     void moveTile();
     void snapTile();
+    void checkWin();
+    bool isSolvable();
 
     void swapTile(SDL_Rect &a, SDL_Rect &b);
 };

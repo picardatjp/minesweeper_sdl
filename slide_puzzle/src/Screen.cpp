@@ -6,6 +6,7 @@
 #include <random>
 #include <ctime>
 #include <algorithm>
+#include <set>
 
 const char *picture_path = "res/picture.png";
 
@@ -71,9 +72,11 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         r.w = r.h = 160;
         tiles[i].src = r;
         tiles[i].dest = r;
+        tiles[i].id = i;
         // tileset[(i + 2) % 16] = r;
         // board[i] = r;
     }
+    newBoard();
     // board = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 }
 
@@ -126,6 +129,7 @@ void Screen::handleEvents()
             // std::cout << "released ";
             mouseDown = false;
             snapTile();
+            checkWin();
         }
         break;
     default:
@@ -137,7 +141,6 @@ void Screen::update()
 {
     if (mouseDown)
     {
-        // std::cout << "here";
         moveTile();
     }
 }
@@ -148,7 +151,7 @@ void Screen::render()
     SDL_RenderClear(renderer);
     // render top part of screen
     // renderRibbon();
-    // render bar graph
+    // render bboard
     renderBoard();
     // actually write to the screen
     SDL_RenderPresent(renderer);
@@ -158,39 +161,92 @@ void Screen::moveTile()
 {
     int x, y;
     SDL_GetMouseState(&x, &y);
-    // std::cout << initMX - x << ", " << initMY - y << std::endl;
     int tx = initMX / 160;
     int ty = initMY / 160;
-    // board[ty * 4 + tx].x = initTX + (x - initMX);
-    // board[ty * 4 + tx].y = initTY + (y - initMY);
-    tiles[ty * 4 + tx].dest.x = x - initMX_offset;
-    tiles[ty * 4 + tx].dest.y = y - initMY_offset;
+    int selected_tile = ty * 4 + tx;
+    if (selected_tile > 3 && tiles[selected_tile - 4].id == 0)
+    {
+        // if the selected tile is below the empty tile
+        if (y - initMY_offset < tiles[selected_tile - 4].dest.y)
+        {
+            tiles[selected_tile].dest.y = tiles[selected_tile - 4].dest.y;
+        }
+        else if (y > initMY)
+        {
+            tiles[selected_tile].dest.y = initMY - initMY_offset;
+        }
+        else
+        {
+            tiles[selected_tile].dest.y = y - initMY_offset;
+        }
+        tiles[selected_tile].dest.x = initMX - initMX_offset;
+    }
+    else if (selected_tile < 12 && tiles[selected_tile + 4].id == 0)
+    {
+        if (y - initMY_offset > tiles[selected_tile + 4].dest.y)
+        {
+            tiles[selected_tile].dest.y = tiles[selected_tile + 4].dest.y;
+        }
+        else if (y < initMY)
+        {
+            tiles[selected_tile].dest.y = initMY - initMY_offset;
+        }
+        else
+        {
+            tiles[selected_tile].dest.y = y - initMY_offset;
+        }
+        tiles[selected_tile].dest.x = initMX - initMX_offset;
+    }
+    else if (selected_tile % 4 > 0 && tiles[selected_tile - 1].id == 0)
+    {
+        if (x - initMX_offset < tiles[selected_tile - 1].dest.x)
+        {
+            tiles[selected_tile].dest.x = tiles[selected_tile - 1].dest.x;
+        }
+        else if (x > initMX)
+        {
+            tiles[selected_tile].dest.x = initMX - initMX_offset;
+        }
+        else
+        {
+            tiles[selected_tile].dest.x = x - initMX_offset;
+        }
+        tiles[selected_tile].dest.y = initMY - initMY_offset;
+    }
+    else if (selected_tile % 4 < 3 && tiles[selected_tile + 1].id == 0)
+    {
+        if (x - initMX_offset > tiles[selected_tile + 1].dest.x)
+        {
+            tiles[selected_tile].dest.x = tiles[selected_tile + 1].dest.x;
+        }
+        else if (x < initMX)
+        {
+            tiles[selected_tile].dest.x = initMX - initMX_offset;
+        }
+        else
+        {
+            tiles[selected_tile].dest.x = x - initMX_offset;
+        }
+        tiles[selected_tile].dest.y = initMY - initMY_offset;
+    }
 }
 
 void Screen::snapTile()
 {
     int tx = initMX / 160;
     int ty = initMY / 160;
-    // swapTile(board[ty * 4 + tx], board[(int((board[ty * 4 + tx].y + 80) / 160)) * 4 + (int((board[ty * 4 + tx].x + 80) / 160))]);
-    // board[ty * 4 + tx].x = (int((board[ty * 4 + tx].x + 80) / 160)) * 160;
-    // board[ty * 4 + tx].y = (int((board[ty * 4 + tx].y + 80) / 160)) * 160;
-    // board[(int((board[ty * 4 + tx].y + 80) / 160)) * 4 + (int((board[ty * 4 + tx].x + 80) / 160))].x = (int(initMX / 160)) * 160;
-    // board[(int((board[ty * 4 + tx].y + 80) / 160)) * 4 + (int((board[ty * 4 + tx].x + 80) / 160))].y = (int(initMY / 160)) * 160;
-    // (int((board[ty * 4 + tx].y + 80) / 160)) * 4 + (int((board[ty * 4 + tx].x + 80) / 160))
-
-    int snapToX = (int((tiles[ty * 4 + tx].dest.x + 80) / 160));
-    int snapToY = (int((tiles[ty * 4 + tx].dest.y + 80) / 160));
-    tiles[ty * 4 + tx].dest.x = (int(initMX / 160)) * 160;
-    tiles[ty * 4 + tx].dest.y = (int(initMY / 160)) * 160;
-    Tile t = tiles[ty * 4 + tx];
-    tiles[ty * 4 + tx] = tiles[snapToY * 4 + snapToX];
+    int selected_tile = ty * 4 + tx;
+    int snapToX = (int((tiles[selected_tile].dest.x + 80) / 160));
+    int snapToY = (int((tiles[selected_tile].dest.y + 80) / 160));
+    tiles[selected_tile].dest.x = (int(initMX / 160)) * 160;
+    tiles[selected_tile].dest.y = (int(initMY / 160)) * 160;
+    Tile t = tiles[selected_tile];
+    tiles[selected_tile] = tiles[snapToY * 4 + snapToX];
     tiles[snapToY * 4 + snapToX] = t;
     SDL_Rect r;
-    r = tiles[ty * 4 + tx].dest;
-    tiles[ty * 4 + tx].dest = tiles[snapToY * 4 + snapToX].dest;
+    r = tiles[selected_tile].dest;
+    tiles[selected_tile].dest = tiles[snapToY * 4 + snapToX].dest;
     tiles[snapToY * 4 + snapToX].dest = r;
-
-    // std::cout << board[1].x << ", " << board[1].y << " : " << board[5].x << ", " << board[5].y << " ";
 }
 
 void Screen::swapTile(SDL_Rect &a, SDL_Rect &b)
@@ -219,26 +275,102 @@ void Screen::renderRibbon()
 
 void Screen::renderBoard()
 {
-    // SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_Rect r;
-
-    // go through all values
+    // go through all tiles
     for (int i = 0; i < 16; i++)
     {
-        // draw a line for each pixel of our bar, this could be replaced with SDL_RenderFillRect() now that i think about it. -2 for padding
-        // for (int j = 0; j < BOARD_WIDTH; j++)
-        // {
-        //     // draw line starting at bottom of screen up to the percent valueof the screen minus the ribbon_offset at the top
-        //     // SDLRenderDrawLine(renderer,x1,y1,x2,y2)
-        //     r.x = j * getWinWidth() / BOARD_WIDTH;
-        //     r.y = i * getWinHeight() / BOARD_HEIGHT;
-        //     r.w = getWinWidth() / BOARD_WIDTH;
-        //     r.h = getWinHeight() / BOARD_HEIGHT;
+        // draw every tile except the first one
+        if (tiles[i].id != 0)
+            SDL_RenderCopy(renderer, texture, &tiles[i].src, &tiles[i].dest);
+    }
+}
 
-        // SDL_RenderFillRect(renderer, i * (getWinWidth() / board.size()) + j + 1, getWinHeight(), i * (getWinWidth() / values.size()) + j + 1, int(getWinHeight() - ((getWinHeight() - ribbon_offset) * percent)));
-        // SDL_RenderFillRect(renderer, &tileset[i]);
-        SDL_RenderCopy(renderer, texture, &tiles[i].src, &tiles[i].dest);
-        // }
+void Screen::newBoard()
+{
+    std::set<int> s;
+    Tile temp[16];
+    int x;
+    bool found = false;
+    unsigned int seed = time(0);
+    srand(seed);
+    for (int i = 0; i < 16; i++)
+    {
+        found = false;
+        while (!found)
+        {
+            x = 0;
+            while (x < 1)
+                x = rand() % 17;
+            if (s.insert(x - 1).second)
+                found = true;
+        }
+        // temp[i].dest = tiles[x - 1].dest;
+        temp[i].src = tiles[x - 1].src;
+        temp[i].id = tiles[x - 1].id;
+        // temp[i] = tiles[x - 1];
+    }
+    for (int i = 0; i < 16; i++)
+    {
+        // tiles[i].dest = temp[i].dest;
+        tiles[i].src = temp[i].src;
+        tiles[i].id = temp[i].id;
+        // tiles[i] = temp[i];
+        // std::cout << temp[i].id << ", ";
+    }
+    if (!isSolvable())
+    {
+        Tile t = tiles[0];
+        tiles[0] = tiles[1];
+        tiles[1] = t;
+        SDL_Rect r = tiles[0].dest;
+        tiles[0].dest = tiles[1].dest;
+        tiles[1].dest = r;
+        // t.src = tiles[0].src;
+        // t.id = tiles[0].id;
+        // tiles[0].src = tiles[1].src;
+        // tiles[0].id = tiles[1].id;
+        // tiles[1].src = t.src;
+        // tiles[1].id = t.id;
+        // std::cout << "not solvable " << std::endl;
+    }
+}
+
+bool Screen::isSolvable()
+{
+    int ic = 0;
+    int zero_loc = 0;
+    for (int i = 0; i < 15; i++)
+    {
+        for (int j = i + 1; j < 16; j++)
+        {
+            if (tiles[i].id != 0 && tiles[j].id != 0 && tiles[i].id > tiles[j].id)
+            {
+                ic++;
+                // std::cout << tiles[i].id + 1 << " > " << tiles[j].id + 1 << ", ";
+            }
+            if (tiles[j].id == 0)
+                zero_loc = j;
+        }
+        // std::cout << tiles[i].id << " ";
+    }
+    // std::cout << ic << " ";
+    if ((ic % 2 == 0 && (int(zero_loc / 4)) % 2 == 0) || (ic % 2 == 1 && (int(zero_loc / 4)) % 2 == 1))
+        return true;
+    else
+        return false;
+}
+
+void Screen::checkWin()
+{
+    bool b = true;
+    for (int i = 0; i < 16; i++)
+    {
+        if (tiles[i].id != i)
+            b = false;
+    }
+    if (b)
+    {
+        sorted = true;
+        std::cout << "sorted!" << std::endl;
     }
 }
 
