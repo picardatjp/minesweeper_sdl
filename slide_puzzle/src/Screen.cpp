@@ -1,14 +1,12 @@
 #include "Screen.hpp"
 #include "SDL.h"
 #include "SDL_image.h"
-#include <stdlib.h>
 #include <iostream>
 #include <random>
 #include <ctime>
-#include <algorithm>
 #include <set>
 
-const char *picture_path = "res/picture.png";
+const char *picture_path = "res/pic2.png";
 
 Screen::Screen()
 {

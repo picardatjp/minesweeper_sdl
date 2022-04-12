@@ -43,6 +43,8 @@ public:
     void setWinHeight(int h) { winHeight = h; }
     void setWinWidth(int w) { winWidth = w; }
 
+    void renderScreen();
+
     // our game renderer
     static SDL_Renderer *renderer;
 };
