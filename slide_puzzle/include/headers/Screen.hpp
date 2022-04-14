@@ -24,25 +24,14 @@ private:
     // int BOARD_HEIGHT = 4;
     // int BOARD_WIDTH = 4;
     SDL_Texture *texture;
-    SDL_Rect tileset[16];
     Tile tiles[16];
     bool mouseDown = false;
     int initMX = 0;
     int initMY = 0;
     int initMX_offset = 0;
     int initMY_offset = 0;
-    // used to calculate how long it has been since the bar graph was updated
-    Uint32 change_time_start = 0;
-    Uint32 change_time_end = 0;
     // is values sorted
     bool sorted = false;
-    // have the swaps been recorded
-    bool sort_recorded = false;
-    // stores pairs of indexes that were swapped when the values were sorted
-    std::vector<std::pair<int, int>> swaps;
-    // stores comparisons, not really using this at the moment
-    std::vector<std::pair<int, int>> compares;
-    int compares_index = 0;
     // height of the grey ribbon at the top of the screen
     int ribbon_offset = 64;
 
@@ -83,8 +72,6 @@ public:
     void snapTile();
     void checkWin();
     bool isSolvable();
-
-    void swapTile(SDL_Rect &a, SDL_Rect &b);
 };
 
 #endif

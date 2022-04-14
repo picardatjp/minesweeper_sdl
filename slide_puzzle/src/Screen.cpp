@@ -100,8 +100,10 @@ void Screen::handleEvents()
         // button was pressed so we want which ones
         state = SDL_GetKeyboardState(NULL);
         // if "B" was pressed
-        if (state[SDL_SCANCODE_B])
+        if (state[SDL_SCANCODE_Q])
         {
+            newBoard();
+            sorted = false;
         }
         break;
     case SDL_MOUSEBUTTONDOWN:
@@ -137,6 +139,7 @@ void Screen::handleEvents()
 
 void Screen::update()
 {
+    // if we have our mouse held down we want to move a tile
     if (mouseDown)
     {
         moveTile();
@@ -149,7 +152,7 @@ void Screen::render()
     SDL_RenderClear(renderer);
     // render top part of screen
     // renderRibbon();
-    // render bboard
+    // render board
     renderBoard();
     // actually write to the screen
     SDL_RenderPresent(renderer);
@@ -157,8 +160,10 @@ void Screen::render()
 
 void Screen::moveTile()
 {
+    // get the x and y position of the mouse
     int x, y;
     SDL_GetMouseState(&x, &y);
+    //
     int tx = initMX / 160;
     int ty = initMY / 160;
     int selected_tile = ty * 4 + tx;
@@ -247,17 +252,6 @@ void Screen::snapTile()
     tiles[snapToY * 4 + snapToX].dest = r;
 }
 
-void Screen::swapTile(SDL_Rect &a, SDL_Rect &b)
-{
-    SDL_Rect temp;
-    temp.x = a.x;
-    temp.y = a.y;
-    a.x = b.x;
-    a.y = b.y;
-    b.y = temp.y;
-    b.x = temp.x;
-}
-
 void Screen::renderRibbon()
 {
     // set draw color to grey
@@ -301,18 +295,13 @@ void Screen::newBoard()
             if (s.insert(x - 1).second)
                 found = true;
         }
-        // temp[i].dest = tiles[x - 1].dest;
         temp[i].src = tiles[x - 1].src;
         temp[i].id = tiles[x - 1].id;
-        // temp[i] = tiles[x - 1];
     }
     for (int i = 0; i < 16; i++)
     {
-        // tiles[i].dest = temp[i].dest;
         tiles[i].src = temp[i].src;
         tiles[i].id = temp[i].id;
-        // tiles[i] = temp[i];
-        // std::cout << temp[i].id << ", ";
     }
     if (!isSolvable())
     {
@@ -322,13 +311,6 @@ void Screen::newBoard()
         SDL_Rect r = tiles[0].dest;
         tiles[0].dest = tiles[1].dest;
         tiles[1].dest = r;
-        // t.src = tiles[0].src;
-        // t.id = tiles[0].id;
-        // tiles[0].src = tiles[1].src;
-        // tiles[0].id = tiles[1].id;
-        // tiles[1].src = t.src;
-        // tiles[1].id = t.id;
-        // std::cout << "not solvable " << std::endl;
     }
 }
 
@@ -343,14 +325,11 @@ bool Screen::isSolvable()
             if (tiles[i].id != 0 && tiles[j].id != 0 && tiles[i].id > tiles[j].id)
             {
                 ic++;
-                // std::cout << tiles[i].id + 1 << " > " << tiles[j].id + 1 << ", ";
             }
             if (tiles[j].id == 0)
                 zero_loc = j;
         }
-        // std::cout << tiles[i].id << " ";
     }
-    // std::cout << ic << " ";
     if ((ic % 2 == 0 && (int(zero_loc / 4)) % 2 == 0) || (ic % 2 == 1 && (int(zero_loc / 4)) % 2 == 1))
         return true;
     else
