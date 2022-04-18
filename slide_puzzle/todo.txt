@@ -1,1 +1,1 @@
-make graph bars move
+the impossible check doesn't work still for some reason
