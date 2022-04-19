@@ -1,5 +1,6 @@
 #include "Game.hpp"
 #include "Piece.hpp"
+#include <iostream>
 
 void Game::setPiece(int index, int piece)
 {
@@ -14,7 +15,47 @@ void Game::movePiece(int from, int to)
     board[from] &= empty;
 }
 
-bool Game::isValidMove(int from, int to) { return true; }
+bool Game::isValidMove(int from, int to)
+{
+    int fp = getPiece(from);
+    int tp = getPiece(to);
+    if ((fp >> 3) == (tp >> 3))
+        return false;
+    if ((fp & king) == king)
+    {
+        // top corners
+        if ((from % 8 < 7 && int(from / 8) > 0 && to == from - 7) || (from % 8 > 0 && int(from / 8) > 0 && to == from - 9))
+            return true;
+        // bottom corners
+        if ((from % 8 < 7 && int(from / 8) < 7 && to == from + 9) || (from % 8 > 0 && int(from / 8) < 7 && to == from + 7))
+            return true;
+        // horizontal
+        if ((from % 8 < 7 && to == from + 1) || (from % 8 > 0 && to == from - 1))
+            return true;
+        // vertical
+        if ((int(from / 8) < 7 && to == from + 8) || (int(from / 8) > 0 && to == from - 8))
+            return true;
+        // need to check for castling
+        return false;
+    }
+    else if ((fp & queen) == queen)
+    {
+    }
+    else if ((fp & bishop) == bishop)
+    {
+    }
+    else if ((fp & knight) == knight)
+    {
+    }
+    else if ((fp & rook) == rook)
+    {
+    }
+    else if ((fp & pawn) == pawn)
+    {
+    }
+    // std::cout << "shouldnt be here: isValidMove()";
+    return true;
+}
 
 void Game::clearBoard()
 {
