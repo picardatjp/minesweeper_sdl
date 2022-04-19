@@ -1,12 +1,15 @@
 #include "Screen.hpp"
 #include "SDL.h"
 #include "SDL_image.h"
+#include "Game.hpp"
+#include "Piece.hpp"
 #include <iostream>
 #include <random>
 #include <ctime>
 #include <set>
 
-const char *picture_path = "res/tiles.png";
+const char *tiles_path = "res/tiles.png";
+Game *game = nullptr;
 
 Screen::Screen()
 {
@@ -57,23 +60,27 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         // no longer running
         is_running = false;
     }
-    SDL_Surface *temp_surf = IMG_Load(picture_path);
+
+    // create our game object
+    game = new Game();
+    game->newBoard();
+    // get our texture for our game pieces
+    SDL_Surface *temp_surf = IMG_Load(tiles_path);
     texture = SDL_CreateTextureFromSurface(renderer, temp_surf);
     SDL_FreeSurface(temp_surf);
+    // r will be temp rect to get the location of each piece in our texture
     SDL_Rect r;
-    for (int i = 0; i < 16; i++)
+    // all 64x64px
+    r.w = r.h = selected_rect.h = selected_rect.w = TILE_HEIGHT;
+    // we have twelve pieces
+    r.y = 0;
+    for (int i = 0; i < 12; i++)
     {
-        r.x = (i % 4) * 160;
-        r.y = int(i / 4) * 160;
-        r.w = r.h = 160;
-        tiles[i].src = r;
-        tiles[i].dest = r;
-        tiles[i].id = i;
-        // tileset[(i + 2) % 16] = r;
-        // board[i] = r;
+        // each is 64x64px all horizontal, so y doesn't change
+        r.x = i * TILE_WIDTH;
+        // add it to our tile_src array
+        tile_src[i] = r;
     }
-    newBoard();
-    // board = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
 }
 
 void Screen::handleEvents()
@@ -84,9 +91,10 @@ void Screen::handleEvents()
     SDL_PollEvent(&event);
     // stores keyboard button presses
     const Uint8 *state;
-    int x, y;
-    // find what events happened
+    // x and y for mouse position. overtile_x,y for which tile we are dropping our piece on
+    int x, y, over_tile_x, over_tile_y;
 
+    // find what events happened
     switch (event.type)
     {
     // the window was closed
@@ -95,39 +103,59 @@ void Screen::handleEvents()
         is_running = false;
         break;
     case SDL_KEYDOWN:
-        // button was pressed so we want which ones
+        // a button was pressed so we want which ones
         state = SDL_GetKeyboardState(NULL);
-        // if "B" was pressed
+        // if "Q" was pressed
         if (state[SDL_SCANCODE_Q])
         {
-            newBoard();
-            sorted = false;
+            game->newBoard();
         }
         break;
+    // we pressed down the mouse button
     case SDL_MOUSEBUTTONDOWN:
-        if (event.button.button == SDL_BUTTON_LEFT)
+        if (event.button.button == SDL_BUTTON_LEFT && !mouse_down)
         {
+            // get mouse position stored in x and y
             SDL_GetMouseState(&x, &y);
-            mouseDown = true;
+            // set mouse down flag
+            mouse_down = true;
+            // store the initial click position
             initMX = x;
             initMY = y;
-            initMX_offset = x - (int(x / 160)) * 160;
-            initMY_offset = y - (int(y / 160)) * 160;
-            // initTX = board[(initMY / 160) * 4 + (initMX / 160)].x;
-            // initTY = board[(initMY / 160) * 4 + (initMX / 160)].y;
-            // std::cout << board[(initMY / 160) * 4 + (initMX / 160)].x << " " << initMY;
-            // std::cout << "pressed ";
-            // std::cout << int(x / 160) << ", " << int(y / 160) << std::endl;
+            // get the offset from our initial click to the upper left corner of the tile we clicked on
+            initMX_offset = x - (int(x / TILE_WIDTH)) * TILE_WIDTH;
+            initMY_offset = y - (int(y / TILE_HEIGHT)) * TILE_HEIGHT;
+            // get the tile we clicked on
+            selected_tile = (initMY / TILE_HEIGHT) * 8 + initMX / TILE_WIDTH;
         }
         break;
-    // no event happened
+    // we released the mouse button
     case SDL_MOUSEBUTTONUP:
         if (event.button.button == SDL_BUTTON_LEFT)
         {
-            // std::cout << "released ";
-            mouseDown = false;
-            snapTile();
-            checkWin();
+            // no longer holding down the button
+            mouse_down = false;
+            if (game->getPiece(selected_tile) != empty)
+            {
+                // get mouse position stored in x and y
+                SDL_GetMouseState(&x, &y);
+                // the tile that we dropped the middle point of our selected piece on
+                over_tile_x = int((x - initMX_offset + (TILE_WIDTH / 2)) / TILE_WIDTH);
+                over_tile_y = int((y - initMY_offset + (TILE_HEIGHT / 2)) / TILE_HEIGHT);
+                // if out of bounds
+                if (over_tile_x > 7)
+                    over_tile_x = 7;
+                if (over_tile_y > 7)
+                    over_tile_y = 7;
+                // if the move we tried to make is legal
+                if (game->isValidMove(selected_tile, over_tile_x + over_tile_y * 8) && selected_tile != (over_tile_x + over_tile_y * 8))
+                {
+                    // then we actually move it to that square
+                    game->movePiece(selected_tile, over_tile_x + over_tile_y * 8);
+                }
+            }
+            // set to something not 0:63 so we draw all pieces on the board again
+            selected_tile = -1;
         }
         break;
     default:
@@ -138,7 +166,7 @@ void Screen::handleEvents()
 void Screen::update()
 {
     // if we have our mouse held down we want to move a tile
-    if (mouseDown)
+    if (mouse_down)
     {
         moveTile();
     }
@@ -148,10 +176,12 @@ void Screen::render()
 {
     // clears the screen
     SDL_RenderClear(renderer);
-    // render top part of screen
-    // renderRibbon();
+
     // render board
     renderBoard();
+    // render the piece we have clicked on
+    renderSelectedPiece();
+
     // actually write to the screen
     SDL_RenderPresent(renderer);
 }
@@ -161,93 +191,9 @@ void Screen::moveTile()
     // get the x and y position of the mouse
     int x, y;
     SDL_GetMouseState(&x, &y);
-    //
-    int tx = initMX / 160;
-    int ty = initMY / 160;
-    int selected_tile = ty * 4 + tx;
-    if (selected_tile > 3 && tiles[selected_tile - 4].id == 0)
-    {
-        // if the selected tile is below the empty tile
-        if (y - initMY_offset < tiles[selected_tile - 4].dest.y)
-        {
-            tiles[selected_tile].dest.y = tiles[selected_tile - 4].dest.y;
-        }
-        else if (y > initMY)
-        {
-            tiles[selected_tile].dest.y = initMY - initMY_offset;
-        }
-        else
-        {
-            tiles[selected_tile].dest.y = y - initMY_offset;
-        }
-        tiles[selected_tile].dest.x = initMX - initMX_offset;
-    }
-    else if (selected_tile < 12 && tiles[selected_tile + 4].id == 0)
-    {
-        if (y - initMY_offset > tiles[selected_tile + 4].dest.y)
-        {
-            tiles[selected_tile].dest.y = tiles[selected_tile + 4].dest.y;
-        }
-        else if (y < initMY)
-        {
-            tiles[selected_tile].dest.y = initMY - initMY_offset;
-        }
-        else
-        {
-            tiles[selected_tile].dest.y = y - initMY_offset;
-        }
-        tiles[selected_tile].dest.x = initMX - initMX_offset;
-    }
-    else if (selected_tile % 4 > 0 && tiles[selected_tile - 1].id == 0)
-    {
-        if (x - initMX_offset < tiles[selected_tile - 1].dest.x)
-        {
-            tiles[selected_tile].dest.x = tiles[selected_tile - 1].dest.x;
-        }
-        else if (x > initMX)
-        {
-            tiles[selected_tile].dest.x = initMX - initMX_offset;
-        }
-        else
-        {
-            tiles[selected_tile].dest.x = x - initMX_offset;
-        }
-        tiles[selected_tile].dest.y = initMY - initMY_offset;
-    }
-    else if (selected_tile % 4 < 3 && tiles[selected_tile + 1].id == 0)
-    {
-        if (x - initMX_offset > tiles[selected_tile + 1].dest.x)
-        {
-            tiles[selected_tile].dest.x = tiles[selected_tile + 1].dest.x;
-        }
-        else if (x < initMX)
-        {
-            tiles[selected_tile].dest.x = initMX - initMX_offset;
-        }
-        else
-        {
-            tiles[selected_tile].dest.x = x - initMX_offset;
-        }
-        tiles[selected_tile].dest.y = initMY - initMY_offset;
-    }
-}
-
-void Screen::snapTile()
-{
-    int tx = initMX / 160;
-    int ty = initMY / 160;
-    int selected_tile = ty * 4 + tx;
-    int snapToX = (int((tiles[selected_tile].dest.x + 80) / 160));
-    int snapToY = (int((tiles[selected_tile].dest.y + 80) / 160));
-    tiles[selected_tile].dest.x = (int(initMX / 160)) * 160;
-    tiles[selected_tile].dest.y = (int(initMY / 160)) * 160;
-    Tile t = tiles[selected_tile];
-    tiles[selected_tile] = tiles[snapToY * 4 + snapToX];
-    tiles[snapToY * 4 + snapToX] = t;
-    SDL_Rect r;
-    r = tiles[selected_tile].dest;
-    tiles[selected_tile].dest = tiles[snapToY * 4 + snapToX].dest;
-    tiles[snapToY * 4 + snapToX].dest = r;
+    // set the x and y to our mouse - the offset from the top left of the piece we are holding
+    selected_rect.x = x - initMX_offset;
+    selected_rect.y = y - initMY_offset;
 }
 
 void Screen::renderRibbon()
@@ -265,87 +211,102 @@ void Screen::renderRibbon()
 
 void Screen::renderBoard()
 {
+    int piece, offset;
+    SDL_Rect r;
+    // 64x64 squares
+    r.w = r.h = TILE_HEIGHT;
     // go through all tiles
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 64; i++)
     {
-        // draw every tile except the first one
-        if (tiles[i].id != 0)
-            SDL_RenderCopy(renderer, texture, &tiles[i].src, &tiles[i].dest);
-    }
-}
-
-void Screen::newBoard()
-{
-    std::set<int> s;
-    Tile temp[16];
-    int x;
-    bool found = false;
-    unsigned int seed = time(0);
-    srand(seed);
-    for (int i = 0; i < 16; i++)
-    {
-        found = false;
-        while (!found)
+        // alternate white and green tiles for board background
+        if (i % 2 == 0 && int(i / 8) % 2 == 0 || i % 2 == 1 && int(i / 8) % 2 == 1)
+            SDL_SetRenderDrawColor(renderer, 210, 185, 185, 255);
+        else
+            SDL_SetRenderDrawColor(renderer, 135, 70, 70, 255);
+        // set the x and y of our 64x64 rectangle
+        r.y = int(i / 8) * TILE_HEIGHT;
+        r.x = (i % 8) * TILE_WIDTH;
+        // draw the rect to the screen
+        SDL_RenderFillRect(renderer, &r);
+        // don't draw the piece we are dragging around
+        if (i != selected_tile)
         {
-            x = 0;
-            while (x < 1)
-                x = rand() % 17;
-            if (s.insert(x - 1).second)
-                found = true;
-        }
-        temp[i].src = tiles[x - 1].src;
-        temp[i].id = tiles[x - 1].id;
-    }
-    for (int i = 0; i < 16; i++)
-    {
-        tiles[i].src = temp[i].src;
-        tiles[i].id = temp[i].id;
-    }
-    if (!isSolvable())
-    {
-        Tile t = tiles[0];
-        tiles[0] = tiles[1];
-        tiles[1] = t;
-        SDL_Rect r = tiles[0].dest;
-        tiles[0].dest = tiles[1].dest;
-        tiles[1].dest = r;
-    }
-}
-
-bool Screen::isSolvable()
-{
-    int ic = 0;
-    int zero_loc = 0;
-    for (int i = 0; i < 15; i++)
-    {
-        for (int j = i + 1; j < 16; j++)
-        {
-            if (tiles[i].id != 0 && tiles[j].id != 0 && tiles[i].id > tiles[j].id)
+            // get the piece type of cell we are looking at
+            piece = game->getPiece(i);
+            // if it isn't empty
+            if (piece > empty)
             {
-                ic++;
+                // pieces in the texture are same order, black followed by white
+                // if white we offset by the number of black pieces, if black we don't offset and start from zero
+                if ((piece & white) == white)
+                    offset = 6;
+                else
+                    offset = 0;
+                // if piece is king, draw king etc.
+                if ((piece & king) == king)
+                {
+                    SDL_RenderCopy(renderer, texture, &tile_src[5 + offset], &r);
+                }
+                else if ((piece & queen) == queen)
+                {
+                    SDL_RenderCopy(renderer, texture, &tile_src[4 + offset], &r);
+                }
+                else if ((piece & bishop) == bishop)
+                {
+                    SDL_RenderCopy(renderer, texture, &tile_src[3 + offset], &r);
+                }
+                else if ((piece & knight) == knight)
+                {
+                    SDL_RenderCopy(renderer, texture, &tile_src[2 + offset], &r);
+                }
+                else if ((piece & rook) == rook)
+                {
+                    SDL_RenderCopy(renderer, texture, &tile_src[1 + offset], &r);
+                }
+                else if ((piece & pawn) == pawn)
+                {
+                    SDL_RenderCopy(renderer, texture, &tile_src[0 + offset], &r);
+                }
             }
-            if (tiles[j].id == 0)
-                zero_loc = j;
         }
     }
-    if ((ic % 2 == 0 && (int(zero_loc / 4)) % 2 == 0) || (ic % 2 == 1 && (int(zero_loc / 4)) % 2 == 1))
-        return true;
-    else
-        return false;
 }
 
-void Screen::checkWin()
+void Screen::renderSelectedPiece()
 {
-    bool b = true;
-    for (int i = 0; i < 16; i++)
+    // get the type of piece we are holding
+    int piece = game->getPiece(selected_tile);
+    int offset;
+    // pretty much same code as renderBoard()
+    if ((piece & white) == white)
+        offset = 6;
+    else
+        offset = 0;
+    // if piece == king, draw king etc, at the selected_rect location
+    if ((piece & king) == king)
     {
-        if (tiles[i].id != i)
-            b = false;
+        SDL_RenderCopy(renderer, texture, &tile_src[5 + offset], &selected_rect);
     }
-    if (b)
+    else if ((piece & queen) == queen)
     {
-        sorted = true;
-        std::cout << "sorted!" << std::endl;
+        SDL_RenderCopy(renderer, texture, &tile_src[4 + offset], &selected_rect);
+    }
+    else if ((piece & bishop) == bishop)
+    {
+        SDL_RenderCopy(renderer, texture, &tile_src[3 + offset], &selected_rect);
+    }
+    else if ((piece & knight) == knight)
+    {
+        SDL_RenderCopy(renderer, texture, &tile_src[2 + offset], &selected_rect);
+    }
+    else if ((piece & rook) == rook)
+    {
+        SDL_RenderCopy(renderer, texture, &tile_src[1 + offset], &selected_rect);
+    }
+
+    else if ((piece & pawn) == pawn)
+    {
+        SDL_RenderCopy(renderer, texture, &tile_src[0 + offset], &selected_rect);
     }
 }
 

@@ -2,8 +2,6 @@
 #define SCREEN_HPP
 
 #include "SDL.h"
-#include "Tile.hpp"
-#include <vector>
 
 // our screen class that handles basically everything
 class Screen
@@ -16,22 +14,30 @@ private:
     // our game window
     SDL_Window *window;
     SDL_Renderer *renderer;
-    int win_height = 640;
-    int win_width = 640;
+    // window dimensions
+    int win_height = 512;
+    int win_width = 512;
     // tile width and height
-    int TILE_WIDTH = 10;
-    int TILE_HEIGHT = 10;
-    // int BOARD_HEIGHT = 4;
-    // int BOARD_WIDTH = 4;
+    int TILE_WIDTH = 64;
+    int TILE_HEIGHT = 64;
+    int BOARD_HEIGHT = 8;
+    int BOARD_WIDTH = 8;
+    // chess pieces texture
     SDL_Texture *texture;
-    Tile tiles[16];
-    bool mouseDown = false;
+    // source rectangles for pieces from the texture
+    SDL_Rect tile_src[12];
+    // index of the piece we are holding
+    int selected_tile = -1;
+    // position of the piece we are holding
+    SDL_Rect selected_rect;
+    // is mouse being pressed bool
+    bool mouse_down = false;
+    // initial mouse click position
     int initMX = 0;
     int initMY = 0;
+    // offset from top left of tile clicked
     int initMX_offset = 0;
     int initMY_offset = 0;
-    // is values sorted
-    bool sorted = false;
     // height of the grey ribbon at the top of the screen
     int ribbon_offset = 64;
 
@@ -59,19 +65,14 @@ public:
     int getWinWidth() { return win_width; }
     void setWinHeight(int h) { win_height = h; }
     void setWinWidth(int w) { win_width = w; }
-    // updates the bar graph
-    void updateGraph();
     // renders the board
     void renderBoard();
     // renders the top part of the screen
     void renderRibbon();
-
-    void newBoard();
-
+    // render the piece we are holding
+    void renderSelectedPiece();
+    // make the piece we are holding follow the cursor
     void moveTile();
-    void snapTile();
-    void checkWin();
-    bool isSolvable();
 };
 
 #endif
