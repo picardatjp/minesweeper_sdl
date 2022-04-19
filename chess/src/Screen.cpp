@@ -142,17 +142,14 @@ void Screen::handleEvents()
                 // the tile that we dropped the middle point of our selected piece on
                 over_tile_x = int((x - initMX_offset + (TILE_WIDTH / 2)) / TILE_WIDTH);
                 over_tile_y = int((y - initMY_offset + (TILE_HEIGHT / 2)) / TILE_HEIGHT);
-                // if out of bounds
-                if (over_tile_x > 7)
-                    over_tile_x = 7;
-                if (over_tile_y > 7)
-                    over_tile_y = 7;
-                // if the move we tried to make is legal
-                if (game->isValidMove(selected_tile, over_tile_x + over_tile_y * 8) && selected_tile != (over_tile_x + over_tile_y * 8))
-                {
-                    // then we actually move it to that square
-                    game->movePiece(selected_tile, over_tile_x + over_tile_y * 8);
-                }
+                // if not out of bounds
+                if (over_tile_x < 8 && over_tile_y < 8)
+                    // if the move we tried to make is legal
+                    if (game->isValidMove(selected_tile, over_tile_x + over_tile_y * 8) && selected_tile != (over_tile_x + over_tile_y * 8))
+                    {
+                        // then we actually move it to that square
+                        game->movePiece(selected_tile, over_tile_x + over_tile_y * 8);
+                    }
             }
             // set to something not 0:63 so we draw all pieces on the board again
             selected_tile = -1;

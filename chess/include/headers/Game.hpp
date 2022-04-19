@@ -2,6 +2,7 @@
 #define GAME_HPP
 
 #include "Piece.hpp"
+#include <vector>
 
 class Game
 {
@@ -22,6 +23,8 @@ public:
     void movePiece(int from, int to);
     // checks if the move trying to be made is legal
     bool isValidMove(int from, int to);
+    // returns array to legal moves from a given piece
+    void legalMoves(std::vector<int> &moves, int pos);
 };
 
 #endif
