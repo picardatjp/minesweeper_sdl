@@ -1,1 +1,6 @@
-make graph bars move
+finish movement:
+    castling
+    en passant
+    pawn can attack diagonally
+    movement in check
+implement checkmate
