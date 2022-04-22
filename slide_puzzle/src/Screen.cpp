@@ -6,7 +6,7 @@
 #include <ctime>
 #include <set>
 
-const char *picture_path = "res/pic2.png";
+char *picture_path = "res/pic1.png";
 
 Screen::Screen()
 {
@@ -59,9 +59,8 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         // no longer running
         is_running = false;
     }
-    SDL_Surface *temp_surf = IMG_Load(picture_path);
-    texture = SDL_CreateTextureFromSurface(renderer, temp_surf);
-    SDL_FreeSurface(temp_surf);
+    loadTexture(0);
+    pic_selected = 0;
     SDL_Rect r;
     for (int i = 0; i < 16; i++)
     {
@@ -104,6 +103,34 @@ void Screen::handleEvents()
         {
             newBoard();
             sorted = false;
+        }
+        if (state[SDL_SCANCODE_1] && pic_selected != 0)
+        {
+            loadTexture(0);
+            newBoard();
+            sorted = false;
+            pic_selected = 0;
+        }
+        if (state[SDL_SCANCODE_2] && pic_selected != 1)
+        {
+            loadTexture(1);
+            newBoard();
+            sorted = false;
+            pic_selected = 1;
+        }
+        if (state[SDL_SCANCODE_3] && pic_selected != 2)
+        {
+            loadTexture(2);
+            newBoard();
+            sorted = false;
+            pic_selected = 2;
+        }
+        if (state[SDL_SCANCODE_4] && pic_selected != 3)
+        {
+            loadTexture(3);
+            newBoard();
+            sorted = false;
+            pic_selected = 3;
         }
         break;
     case SDL_MOUSEBUTTONDOWN:
@@ -349,6 +376,29 @@ void Screen::checkWin()
         sorted = true;
         std::cout << "sorted!" << std::endl;
     }
+}
+
+void Screen::loadTexture(int pic)
+{
+    switch (pic)
+    {
+    case 1:
+        picture_path = "res/pic1.png";
+        break;
+    case 2:
+        picture_path = "res/pic2.png";
+        break;
+    case 3:
+        picture_path = "res/pic3.png";
+        break;
+    default:
+        picture_path = "res/pic0.png";
+        break;
+    }
+    SDL_DestroyTexture(texture);
+    SDL_Surface *temp_surf = IMG_Load(picture_path);
+    texture = SDL_CreateTextureFromSurface(renderer, temp_surf);
+    SDL_FreeSurface(temp_surf);
 }
 
 void Screen::clean()

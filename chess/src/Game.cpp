@@ -18,14 +18,16 @@ void Game::movePiece(int from, int to)
 
 bool Game::isValidMove(int from, int to)
 {
+    bool valid;
     int fp = getPiece(from);
     int tp = getPiece(to);
     std::vector<int> moves;
+    // if the pieces at to and from are on the same team
     if ((fp >> 3) == (tp >> 3))
-        return false;
+        valid = false;
     // the reset of this method is really spread out and bad but just for debugging
     // will fix when all movement logic is wroking properly
-    if ((fp & king) == king)
+    else if ((fp & king) == king)
     {
         legalMoves(moves, from);
         // std::cout << moves.size() << " ";

@@ -4,3 +4,5 @@ finish movement:
     pawn can attack diagonally
     movement in check
 implement checkmate
+
+refactor to look nicer, more maintainable

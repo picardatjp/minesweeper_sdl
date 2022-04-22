@@ -1,0 +1,6 @@
+slide puzzle 2 - like slide puzzle but no indication of what the correct order should be
+hex editor
+notepad
+paint
+pacman
+logisim

@@ -10,7 +10,7 @@ class Screen
 {
 private:
     int count = 0;
-
+    int pic_selected = 0;
     // true if the game is running, false if not
     bool is_running;
     // our game window
@@ -72,6 +72,8 @@ public:
     void snapTile();
     void checkWin();
     bool isSolvable();
+
+    void loadTexture(int pic);
 };
 
 #endif
