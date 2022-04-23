@@ -10,9 +10,11 @@ class Textbox
 private:
     std::unique_ptr<Label> label_ = std::make_unique<Label>();
     SDL_Rect rect_;
+    int cursor_x_ = 0;
+    int cursor_y_ = 0;
     // SDL_Texture *texture_;
     // function pointer to void(void) functions, maybe ill add parameters later if it isn't too hard
-    void (*onPressedFunc_)() = nullptr;
+    void (*onClickedFunc_)() = nullptr;
 
 public:
     Textbox();
@@ -28,8 +30,9 @@ public:
     void setW(int mw) { rect_.w = mw; }
     int getH() { return rect_.h; }
     void setH(int mh) { rect_.h = mh; }
-    void onPressed();
+    void onClicked();
     void update(SDL_Renderer *renderer, char c);
+    void setText(SDL_Renderer *renderer, std::string text);
 };
 
 #endif

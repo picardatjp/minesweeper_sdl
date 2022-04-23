@@ -2,22 +2,26 @@
 #define BUTTON_HPP
 
 #include "SDL.h"
-
+#include "Label.hpp"
+#include <memory>
+#include <string>
 class Button
 {
 private:
-    SDL_Rect srcRect_;
+    std::unique_ptr<Label> label_ = std::make_unique<Label>();
+    // SDL_Rect srcRect_;
     SDL_Rect dRect_;
-    SDL_Texture *texture_;
-    void (*onPressedFunc_)();
+    // SDL_Texture *texture_;
+    void (*onClickedFunc_)() = nullptr;
     // 000 -> idle, 001 -> pressed, 010 -> hover
     unsigned char state_;
+    SDL_Color color_;
 
 public:
     Button();
     ~Button();
     void update(int x, int y);
-    void init(SDL_Rect src, SDL_Rect d, void (*func)(), SDL_Renderer *r, const char *path);
+    void init(SDL_Renderer *renderer, SDL_Rect d, std::string message, SDL_Color button_color, SDL_Color text_color, void (*func)());
     void loadTexture();
     void render(SDL_Renderer *r);
     SDL_Rect getRect() { return dRect_; }
@@ -29,7 +33,7 @@ public:
     void setW(int mw) { dRect_.w = mw; }
     int getH() { return dRect_.h; }
     void setH(int mh) { dRect_.h = mh; }
-    void onPressed();
+    void onClicked();
     void setState(unsigned char s) { state_ = s; }
     unsigned char getState() { return state_; }
 };

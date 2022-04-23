@@ -21,7 +21,7 @@ private:
     SDL_Color color_;
     bool empty_ = false;
     // function pointer to void(void) functions, maybe ill add parameters later if it isn't too hard
-    void (*onPressedFunc_)() = nullptr;
+    void (*onClickedFunc_)() = nullptr;
 
 public:
     Label();
@@ -37,14 +37,15 @@ public:
     void setW(int mw) { rect_.w = mw; }
     int getH() { return rect_.h; }
     void setH(int mh) { rect_.h = mh; }
+    // wont work, need to recreate font with TTF_OpenFont() to take effect
     void setFontSize(int size) { font_size_ = size; }
-    void onPressed();
+    void onClicked();
     void update(SDL_Renderer *renderer, char c);
-    void renderText();
     void enableModify() { can_modify_ = true; }
     void disableModify() { can_modify_ = false; }
     void loadFont(SDL_Renderer *renderer);
     void reloadText(SDL_Renderer *renderer);
+    void setText(SDL_Renderer *renderer, std::string text);
 };
 
 #endif

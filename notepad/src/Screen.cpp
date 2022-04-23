@@ -5,18 +5,25 @@
 #include "Button.hpp"
 #include "Label.hpp"
 #include "SDL_ttf.h"
+#include "Menu.hpp"
 #include <iostream>
 #include <memory>
 
 // event function declarations
 void textChanged();
-void sayHello();
+void clearButton();
+void btn1pressed();
+void btn2pressed();
+void btn3pressed();
 
 // SDL_Texture *buttons_texture;
 // const char *buttons_texture_path = "res/buttons.png";
 std::unique_ptr<Textbox> textbox = std::make_unique<Textbox>();
 std::unique_ptr<Button> button = std::make_unique<Button>();
 std::unique_ptr<Label> label = std::make_unique<Label>();
+std::unique_ptr<Menu> menu = std::make_unique<Menu>();
+
+SDL_Renderer *gross_global_renderer = nullptr;
 
 Screen::Screen()
 {
@@ -77,19 +84,36 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         // no longer running
         is_running = false;
     }
-    SDL_Color c;
-    c.r = c.b = c.g = 0;
-    c.a = 255;
-
+    gross_global_renderer = renderer;
     SDL_Rect r;
     r.x = r.y = 100;
     r.w = r.h = 400;
     // textbox->init(renderer, r, textChanged);
-    textbox->init(renderer, r, sayHello);
-    r.x = r.y = 25;
-    r.w = 50;
-    r.h = 35;
-    button->init(r, r, sayHello, renderer, "garbage");
+    textbox->init(renderer, r, clearButton);
+    r.x = r.y = 40;
+    r.w = 60;
+    r.h = 40;
+    SDL_Color c1, c2;
+    c1.r = c1.b = c1.g = c2.b = c2.g = 0;
+    c1.a = c2.a = 255;
+    c2.r = 255;
+    button->init(renderer, r, "clear", c2, c1, clearButton);
+    c2.r = 240;
+    c2.g = 215;
+    c2.b = 180;
+    menu->init(getWinWidth(), 30, c2);
+    c2.r = 255;
+    c2.g = 0;
+    c2.b = 0;
+    menu->addButton(renderer, 80, "btn1", c2, c1, btn1pressed);
+    c2.r = 0;
+    c2.g = 255;
+    c2.b = 0;
+    menu->addButton(renderer, 80, "btn2", c2, c1, btn2pressed);
+    c2.r = 255;
+    c2.g = 255;
+    c2.b = 0;
+    menu->addButton(renderer, 80, "btn3", c2, c1, btn3pressed);
 }
 
 void Screen::handleEvents()
@@ -173,21 +197,23 @@ void Screen::handleEvents()
         // if "Q" was pressed
         // else if (state[SDL_SCANCODE_Q])
         // {
-        //     // textbox->onPressed();
-        //     label->onPressed();
+        //     // textbox->onClicked();
+        //     label->onClicked();
         // }
         // // if "H" was pressed
         // else if (state[SDL_SCANCODE_H])
         // {
         // }
         break;
+    case SDL_MOUSEBUTTONDOWN:
+        if (!mouse_down_)
+            mouse_down_ = true;
     case SDL_MOUSEBUTTONUP:
-        SDL_GetMouseState(&x, &y);
-        r1.x = x;
-        r1.y = y;
-        r2 = button->getRect();
-        if (SDL_HasIntersection(&r1, &r2) == SDL_TRUE)
-            button->setState(1);
+        if (mouse_down_)
+        {
+            mouse_down_ = false;
+            mouse_release_ = true;
+        }
     // no event happened
     default:
         break;
@@ -196,9 +222,16 @@ void Screen::handleEvents()
 
 void Screen::update()
 {
-    int x, y;
-    SDL_GetMouseState(&x, &y);
-    button->update(x, y);
+    // if (mouse_down_)
+
+    if (mouse_release_)
+    {
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+        button->update(x, y);
+        menu->update(x, y);
+        mouse_release_ = false;
+    }
 }
 
 void Screen::render()
@@ -210,6 +243,7 @@ void Screen::render()
     // renderRibbon();
     textbox->render(renderer);
     button->render(renderer);
+    menu->render(renderer);
     // actually write to the screen
     SDL_RenderPresent(renderer);
 }
@@ -245,10 +279,23 @@ void Screen::clean()
 
 void textChanged()
 {
-    std::cout << "label event" << std::endl;
+    std::cout << "textbox event" << std::endl;
 }
 
-void sayHello()
+void clearButton()
 {
-    std::cout << "button event" << std::endl;
+    textbox->setText(gross_global_renderer, "");
+    std::cout << "text cleared." << std::endl;
+}
+void btn1pressed()
+{
+    std::cout << "btn1" << std::endl;
+}
+void btn2pressed()
+{
+    std::cout << "btn2" << std::endl;
+}
+void btn3pressed()
+{
+    std::cout << "btn3" << std::endl;
 }

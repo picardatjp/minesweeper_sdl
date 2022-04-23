@@ -22,6 +22,8 @@ private:
     int win_width = 640;
     // height of the grey ribbon at the top of the screen
     int ribbon_offset = 64;
+    bool mouse_down_ = false;
+    bool mouse_release_ = false;
 
 public:
     // constructor and destructor

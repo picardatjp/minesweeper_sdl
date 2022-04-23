@@ -9,3 +9,4 @@ figure out a way to open files, preferably without windows.h.
     if button is folder cd into it, if file copy path.
 scroll textbox
 create drop down box like in the win32 api menu
+make types of buttons like label, no label, and texture.

@@ -14,16 +14,16 @@ void Label::init(SDL_Renderer *renderer, SDL_Rect r, std::string message, SDL_Co
     max_w_ = r.w;
     max_h_ = r.h;
     color_ = color;
-    onPressedFunc_ = func;
+    onClickedFunc_ = func;
     font_size_ = 24;
     text_ = message;
     loadFont(renderer);
 }
 
-void Label::onPressed()
+void Label::onClicked()
 {
-    if (!onPressedFunc_)
-        onPressedFunc_();
+    if (onClickedFunc_ != nullptr)
+        onClickedFunc_();
 }
 
 void Label::render(SDL_Renderer *renderer)
@@ -80,31 +80,42 @@ void Label::reloadText(SDL_Renderer *renderer)
 
 void Label::update(SDL_Renderer *renderer, char c)
 {
-
-    if (c == char(8))
+    if (can_modify_)
     {
-        if (text_.size() <= 1)
+        if (c == char(8))
         {
-            text_ = "";
-            // reloadText(renderer);
-            empty_ = true;
+            if (text_.size() <= 1)
+            {
+                text_ = "";
+                // reloadText(renderer);
+                empty_ = true;
+            }
+            else
+            {
+                text_ = text_.substr(0, text_.size() - 1);
+                reloadText(renderer);
+            }
+        }
+        else if (c == char(32))
+        {
+            text_ += " ";
+            reloadText(renderer);
+            empty_ = false;
         }
         else
         {
-            text_ = text_.substr(0, text_.size() - 1);
+            text_ += c;
             reloadText(renderer);
+            empty_ = false;
         }
     }
-    else if (c == char(32))
-    {
-        text_ += " ";
-        reloadText(renderer);
-        empty_ = false;
-    }
+}
+
+void Label::setText(SDL_Renderer *renderer, std::string text)
+{
+    text_ = text;
+    if (text.size() < 1)
+        empty_ = true;
     else
-    {
-        text_ += c;
         reloadText(renderer);
-        empty_ = false;
-    }
 }
