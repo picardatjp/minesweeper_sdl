@@ -6,12 +6,12 @@
 class Button
 {
 private:
-    SDL_Rect srcRect;
-    SDL_Rect dRect;
-    SDL_Texture *texture;
-    void (*onPressedFunc)();
+    SDL_Rect srcRect_;
+    SDL_Rect dRect_;
+    SDL_Texture *texture_;
+    void (*onPressedFunc_)();
     // 000 -> idle, 001 -> pressed, 010 -> hover
-    unsigned char state;
+    unsigned char state_;
 
 public:
     Button();
@@ -20,18 +20,18 @@ public:
     void init(SDL_Rect src, SDL_Rect d, void (*func)(), SDL_Renderer *r, const char *path);
     void loadTexture();
     void render(SDL_Renderer *r);
-    SDL_Rect getRect() { return dRect; }
-    int getX() { return dRect.x; }
-    void setX(int mx) { dRect.x = mx; }
-    int getY() { return dRect.y; }
-    void setY(int my) { dRect.y = my; }
-    int getW() { return dRect.w; }
-    void setW(int mw) { dRect.w = mw; }
-    int getH() { return dRect.h; }
-    void setH(int mh) { dRect.h = mh; }
+    SDL_Rect getRect() { return dRect_; }
+    int getX() { return dRect_.x; }
+    void setX(int mx) { dRect_.x = mx; }
+    int getY() { return dRect_.y; }
+    void setY(int my) { dRect_.y = my; }
+    int getW() { return dRect_.w; }
+    void setW(int mw) { dRect_.w = mw; }
+    int getH() { return dRect_.h; }
+    void setH(int mh) { dRect_.h = mh; }
     void onPressed();
-    void setState(unsigned char s) { state = s; }
-    unsigned char getState() { return state; }
+    void setState(unsigned char s) { state_ = s; }
+    unsigned char getState() { return state_; }
 };
 
 #endif

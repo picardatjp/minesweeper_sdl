@@ -4,7 +4,6 @@
 #include "SDL.h"
 #include <vector>
 #include <random>
-#include "SDL_ttf.h"
 // #include <algorithm>
 
 // our screen class that handles basically everything

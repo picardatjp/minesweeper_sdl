@@ -3,6 +3,8 @@
 #include "SDL_image.h"
 #include "Textbox.hpp"
 #include "Button.hpp"
+#include "Label.hpp"
+#include "SDL_ttf.h"
 #include <iostream>
 #include <memory>
 
@@ -14,6 +16,7 @@ void sayHello();
 // const char *buttons_texture_path = "res/buttons.png";
 std::unique_ptr<Textbox> textbox = std::make_unique<Textbox>();
 std::unique_ptr<Button> button = std::make_unique<Button>();
+std::unique_ptr<Label> label = std::make_unique<Label>();
 
 Screen::Screen()
 {
@@ -22,7 +25,11 @@ Screen::Screen()
 Screen::~Screen()
 {
 }
+//////////////////////////////////////////////////
 
+// instatiate sdl_image and sdl_ttf
+
+//////////////////////////////////////////////////
 void Screen::init(const char *title, int xpos, int ypos, int width, int height, bool fullscreen)
 {
     // flags
@@ -58,6 +65,10 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
 
         // we made it here so the game is now running
         is_running = true;
+        if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG)
+            std::cout << "Failed to initialize SDL_Image" << std::endl;
+        if (TTF_Init() == -1)
+            std::cout << "Failed to initialize SDL_TTF" << std::endl;
     }
     else
     {
@@ -66,12 +77,16 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         // no longer running
         is_running = false;
     }
+    SDL_Color c;
+    c.r = c.b = c.g = 0;
+    c.a = 255;
 
     SDL_Rect r;
     r.x = r.y = 100;
-    r.w = r.h = 200;
-    textbox->init(r, textChanged);
-    r.x = r.y = 130;
+    r.w = r.h = 400;
+    // textbox->init(renderer, r, textChanged);
+    textbox->init(renderer, r, sayHello);
+    r.x = r.y = 25;
     r.w = 50;
     r.h = 35;
     button->init(r, r, sayHello, renderer, "garbage");
@@ -100,18 +115,71 @@ void Screen::handleEvents()
         // key was pressed so we want which ones
         state = SDL_GetKeyboardState(NULL);
         // if "B" was pressed
-        if (state[SDL_SCANCODE_B])
+        if (state[SDL_SCANCODE_LSHIFT] || state[SDL_SCANCODE_RSHIFT])
         {
+            for (int i = 4; i < 30; i++)
+            {
+                if (state[i])
+                {
+                    textbox->update(renderer, char(i + 61));
+                }
+            }
+            if (state[SDL_SCANCODE_1])
+            {
+                textbox->update(renderer, char(33));
+            }
+            if (state[SDL_SCANCODE_2])
+            {
+                textbox->update(renderer, char(64));
+            }
+            if (state[SDL_SCANCODE_SLASH])
+            {
+                textbox->update(renderer, char(63));
+            }
         }
+        else
+        {
+            for (int i = 4; i < 30; i++)
+            {
+                if (state[i])
+                {
+                    textbox->update(renderer, char(i + 93));
+                }
+            }
+            for (int i = 30; i < 39; i++)
+            {
+                if (state[i])
+                {
+                    textbox->update(renderer, char(i + 19));
+                }
+            }
+            if (state[SDL_SCANCODE_0])
+            {
+                textbox->update(renderer, char(48));
+            }
+            if (state[SDL_SCANCODE_PERIOD])
+            {
+                textbox->update(renderer, char(46));
+            }
+            if (state[SDL_SCANCODE_COMMA])
+            {
+                textbox->update(renderer, char(44));
+            }
+        }
+        if (state[SDL_SCANCODE_SPACE])
+            textbox->update(renderer, char(32));
+        if (state[SDL_SCANCODE_BACKSPACE])
+            textbox->update(renderer, char(8));
         // if "Q" was pressed
-        else if (state[SDL_SCANCODE_Q])
-        {
-            textbox->onPressed();
-        }
-        // if "H" was pressed
-        else if (state[SDL_SCANCODE_H])
-        {
-        }
+        // else if (state[SDL_SCANCODE_Q])
+        // {
+        //     // textbox->onPressed();
+        //     label->onPressed();
+        // }
+        // // if "H" was pressed
+        // else if (state[SDL_SCANCODE_H])
+        // {
+        // }
         break;
     case SDL_MOUSEBUTTONUP:
         SDL_GetMouseState(&x, &y);
@@ -169,13 +237,15 @@ void Screen::clean()
     // SDL_DestroyTexture(buttons_texture);
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
+    TTF_Quit();
+    IMG_Quit();
     SDL_Quit();
     std::cout << "Game cleaned." << std::endl;
 }
 
 void textChanged()
 {
-    std::cout << "textbox event" << std::endl;
+    std::cout << "label event" << std::endl;
 }
 
 void sayHello()
