@@ -1,10 +1,12 @@
 /******************************************************************************
  *
+ *   Project: notepad
  *   Author: Jacob Picardat
- *   Date:   4/9/2022
- *   Purpose:    Slow down the sorting of arrays using different algorithms.
- *   Function:   We sort a copy of the array, keep track of what swaps occured,
- *               then we replay the sort swap by swap.
+ *   Date:   4/24/2022
+ *   Purpose:    A simple notepad clone. Doing stuff like this
+ *               in SDL is pretty much from scratch so I am just messing around
+ *               with this one. Not really sure the best way to go about doing
+ *               UI stuff such as buttons and textboxes so I am just winging it.
  *
  ******************************************************************************/
 
