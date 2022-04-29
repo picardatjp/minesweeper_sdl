@@ -33,6 +33,15 @@ bool Game::isValidMove(int from, int to)
     {
         return false;
     }
+    // check whos turn it is
+    if (white_turn && ((fp & white) != white))
+    {
+        return false;
+    }
+    if (!white_turn && ((fp & black) != black))
+    {
+        return false;
+    }
     // the rest of this method is really spread out and bad but just for debugging
     // will fix when all movement logic is wroking properly
     else if ((fp & king) == king)
@@ -95,7 +104,7 @@ bool Game::isValidMove(int from, int to)
         }
         return false;
     }
-    std::cout << "shouldn't be here.isValidMove()\n";
+    std::cout << "shouldn't be here. isValidMove()\n";
     return true;
 }
 

@@ -72,13 +72,13 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
     // r will be temp rect to get the location of each piece in our texture
     SDL_Rect r;
     // all 64x64px
-    r.w = r.h = selected_rect.h = selected_rect.w = TILE_HEIGHT;
+    r.w = r.h = selected_rect.h = selected_rect.w = 64;
     // we have twelve pieces
     r.y = 0;
     for (int i = 0; i < 12; i++)
     {
         // each is 64x64px all horizontal, so y doesn't change
-        r.x = i * TILE_WIDTH;
+        r.x = i * 64;
         // add it to our tile_src array
         tile_src[i] = r;
     }
@@ -128,6 +128,7 @@ void Screen::handleEvents()
             initMY_offset = y - (int(y / TILE_HEIGHT)) * TILE_HEIGHT;
             // get the tile we clicked on
             selected_tile = (initMY / TILE_HEIGHT) * 8 + initMX / TILE_WIDTH;
+            // get the possible moves and store them in the array
             game->legalMoves(possible_moves_vec, selected_tile);
             for (int i = 0; i < possible_moves_vec.size(); i++)
             {
@@ -153,12 +154,19 @@ void Screen::handleEvents()
                     // if the move we tried to make is legal
                     if (game->isValidMove(selected_tile, over_tile_x + over_tile_y * 8) && selected_tile != (over_tile_x + over_tile_y * 8))
                     {
+                        // set whos turn it is based on the last piece that moved
+                        if ((game->getPiece(selected_tile) & white) == white)
+                            game->setWhiteTurn(false);
+                        else
+                            game->setWhiteTurn(true);
+                        std::cout << (game->getWhiteTurn() ? "white" : "black") << "\n";
                         // then we actually move it to that square
                         game->movePiece(selected_tile, over_tile_x + over_tile_y * 8);
                     }
             }
             // set to something not 0:63 so we draw all pieces on the board again
             selected_tile = -1;
+            // clear the possible moves arrays
             possible_moves_vec.clear();
             memset(possible_moves_arr, 0, sizeof(possible_moves_arr));
         }
@@ -228,9 +236,11 @@ void Screen::renderBoard()
         // alternate white and green tiles for board background
         if (i % 2 == 0 && int(i / 8) % 2 == 0 || i % 2 == 1 && int(i / 8) % 2 == 1)
         {
+            // if its a possible move then we want to highlight that square
             if (possible_moves_arr[i])
                 SDL_SetRenderDrawColor(renderer, 255, 195, 195, 255);
             else
+                // else we do normal color
                 SDL_SetRenderDrawColor(renderer, 255, 235, 210, 255);
         }
         else
@@ -333,6 +343,7 @@ void Screen::clean()
     SDL_DestroyTexture(texture);
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
+    // called new on game so must delete it
     delete (game);
     SDL_Quit();
     std::cout << "Game cleaned." << std::endl;

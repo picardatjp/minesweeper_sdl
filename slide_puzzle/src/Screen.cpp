@@ -5,8 +5,12 @@
 #include <random>
 #include <ctime>
 #include <set>
+#include <string>
 
-char *picture_path = "res/pic1.png";
+std::string picture_path = "res/pic1.png";
+std::string buttons_path = "res/puzzle_buttons.png";
+std::string play_button_path = "res/play_button.png";
+std::string bg_path = "res/bg.png";
 
 Screen::Screen()
 {
@@ -59,7 +63,27 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         // no longer running
         is_running = false;
     }
-    loadTexture(0);
+    // load up our button textures
+    SDL_Surface *temp = IMG_Load(buttons_path.c_str());
+    buttons_texture = SDL_CreateTextureFromSurface(renderer, temp);
+    SDL_FreeSurface(temp);
+    temp = IMG_Load(play_button_path.c_str());
+    play_button_texture = SDL_CreateTextureFromSurface(renderer, temp);
+    SDL_FreeSurface(temp);
+    temp = IMG_Load(bg_path.c_str());
+    bg_texture = SDL_CreateTextureFromSurface(renderer, temp);
+    SDL_FreeSurface(temp);
+    // initialize button rects to some magic numbers
+    buttons_dest.x = button_highlight_dest.x = 17;
+    buttons_dest.y = button_highlight_dest.y = 245;
+    buttons_dest.h = buttons_src.h = button_highlight_src.h = button_highlight_dest.h = button_highlight_dest.w = button_highlight_src.w = 150;
+    play_button_dest.h = play_button_dest.w = play_button_src.h = play_button_src.w = 150;
+    buttons_dest.w = buttons_src.w = 606;
+    buttons_src.x = buttons_src.y = button_highlight_src.y = play_button_src.y = play_button_src.x = 0;
+    button_highlight_src.x = 606;
+    play_button_dest.x = 245;
+    play_button_dest.y = 442;
+    // set initial pic selected to the first one
     pic_selected = 0;
     SDL_Rect r;
     for (int i = 0; i < 16; i++)
@@ -70,8 +94,6 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         tiles[i].src = r;
         tiles[i].dest = r;
         tiles[i].id = i;
-        // tileset[(i + 2) % 16] = r;
-        // board[i] = r;
     }
     newBoard();
     // board = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
@@ -101,8 +123,9 @@ void Screen::handleEvents()
         // if "B" was pressed
         if (state[SDL_SCANCODE_Q])
         {
-            newBoard();
-            sorted = false;
+            // newBoard();
+            // sorted = false;
+            current_screen = 0;
         }
         if (state[SDL_SCANCODE_1] && pic_selected != 0)
         {
@@ -136,17 +159,50 @@ void Screen::handleEvents()
     case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT)
         {
-            SDL_GetMouseState(&x, &y);
-            mouseDown = true;
-            initMX = x;
-            initMY = y;
-            initMX_offset = x - (int(x / 160)) * 160;
-            initMY_offset = y - (int(y / 160)) * 160;
-            // initTX = board[(initMY / 160) * 4 + (initMX / 160)].x;
-            // initTY = board[(initMY / 160) * 4 + (initMX / 160)].y;
-            // std::cout << board[(initMY / 160) * 4 + (initMX / 160)].x << " " << initMY;
-            // std::cout << "pressed ";
-            // std::cout << int(x / 160) << ", " << int(y / 160) << std::endl;
+            if (current_screen == 0)
+            {
+                SDL_GetMouseState(&x, &y);
+                if (y > 245 && y < 395)
+                {
+                    // pic 0 selected (button 0)
+                    if (x > 17 && x < 167)
+                    {
+                        button_highlight_dest.x = 17;
+                        pic_selected = 0;
+                    }
+                    // pic 1 selected (button1)
+                    if (x > 169 && x < 319)
+                    {
+                        button_highlight_dest.x = 169;
+                        pic_selected = 1;
+                    }
+                    // pic 2 selected (button2)
+                    if (x > 321 && x < 471)
+                    {
+                        button_highlight_dest.x = 321;
+                        pic_selected = 2;
+                    }
+                    // pic 3 selected (button3)
+                    if (x > 473 && x < 623)
+                    {
+                        button_highlight_dest.x = 473;
+                        pic_selected = 3;
+                    }
+                }
+                if (y > 442 && y < 592 && x > 245 && x < 395)
+                {
+                    playClicked();
+                }
+            }
+            if (current_screen == 1)
+            {
+                SDL_GetMouseState(&x, &y);
+                mouseDown = true;
+                initMX = x;
+                initMY = y;
+                initMX_offset = x - (int(x / 160)) * 160;
+                initMY_offset = y - (int(y / 160)) * 160;
+            }
         }
         break;
     // no event happened
@@ -154,9 +210,12 @@ void Screen::handleEvents()
         if (event.button.button == SDL_BUTTON_LEFT)
         {
             // std::cout << "released ";
-            mouseDown = false;
-            snapTile();
-            checkWin();
+            if (current_screen == 1)
+            {
+                mouseDown = false;
+                snapTile();
+                checkWin();
+            }
         }
         break;
     default:
@@ -176,11 +235,13 @@ void Screen::update()
 void Screen::render()
 {
     // clears the screen
+    SDL_SetRenderDrawColor(renderer, 190, 190, 190, 255);
     SDL_RenderClear(renderer);
-    // render top part of screen
-    // renderRibbon();
-    // render board
-    renderBoard();
+    // render board or main menu
+    if (current_screen == 0)
+        renderMenu();
+    if (current_screen == 1)
+        renderBoard();
     // actually write to the screen
     SDL_RenderPresent(renderer);
 }
@@ -279,19 +340,6 @@ void Screen::snapTile()
     tiles[snapToY * 4 + snapToX].dest = r;
 }
 
-void Screen::renderRibbon()
-{
-    // set draw color to grey
-    SDL_SetRenderDrawColor(renderer, 120, 120, 120, 255);
-    // make a rect from top left to far right and down 64px, or ribbon_offset
-    SDL_Rect r;
-    r.x = r.y = 0;
-    r.w = getWinWidth();
-    r.h = ribbon_offset;
-    // draw a filled in rectangle using our rect r
-    SDL_RenderFillRect(renderer, &r);
-}
-
 void Screen::renderBoard()
 {
     // go through all tiles
@@ -341,6 +389,7 @@ void Screen::newBoard()
     }
 }
 
+// i don't think this works properly, only 80% of the time i think
 bool Screen::isSolvable()
 {
     int ic = 0;
@@ -396,15 +445,37 @@ void Screen::loadTexture(int pic)
         break;
     }
     SDL_DestroyTexture(texture);
-    SDL_Surface *temp_surf = IMG_Load(picture_path);
+    SDL_Surface *temp_surf = IMG_Load(picture_path.c_str());
     texture = SDL_CreateTextureFromSurface(renderer, temp_surf);
     SDL_FreeSurface(temp_surf);
+}
+
+void Screen::renderMenu()
+{
+    // render background
+    SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
+    // render button pictures
+    SDL_RenderCopy(renderer, buttons_texture, &buttons_src, &buttons_dest);
+    SDL_RenderCopy(renderer, play_button_texture, &play_button_src, &play_button_dest);
+    // render highlight
+    SDL_RenderCopy(renderer, buttons_texture, &button_highlight_src, &button_highlight_dest);
+}
+
+void Screen::playClicked()
+{
+    loadTexture(pic_selected);
+    sorted = false;
+    newBoard();
+    current_screen = 1;
 }
 
 void Screen::clean()
 {
     // destroy our textures, window, renderer and quit all SDL processes
     SDL_DestroyTexture(texture);
+    SDL_DestroyTexture(buttons_texture);
+    SDL_DestroyTexture(play_button_texture);
+    SDL_DestroyTexture(bg_texture);
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();

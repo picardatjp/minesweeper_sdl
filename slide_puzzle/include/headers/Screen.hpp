@@ -34,6 +34,16 @@ private:
     bool sorted = false;
     // height of the grey ribbon at the top of the screen
     int ribbon_offset = 64;
+    int current_screen = 0;
+    SDL_Texture *buttons_texture;
+    SDL_Rect buttons_src;
+    SDL_Rect buttons_dest;
+    SDL_Rect button_highlight_dest;
+    SDL_Rect button_highlight_src;
+    SDL_Texture *play_button_texture;
+    SDL_Rect play_button_src;
+    SDL_Rect play_button_dest;
+    SDL_Texture *bg_texture;
 
 public:
     // constructor and destructor
@@ -63,9 +73,8 @@ public:
     void updateGraph();
     // renders the board
     void renderBoard();
-    // renders the top part of the screen
-    void renderRibbon();
-
+    // renders start menu
+    void renderMenu();
     void newBoard();
 
     void moveTile();
@@ -74,6 +83,7 @@ public:
     bool isSolvable();
 
     void loadTexture(int pic);
+    void playClicked();
 };
 
 #endif
