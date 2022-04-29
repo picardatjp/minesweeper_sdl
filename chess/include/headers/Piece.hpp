@@ -15,10 +15,4 @@ enum Piece : int
     black = 16,
 };
 
-// override the | operator
-// inline Piece operator|(Piece a, Piece b)
-// {
-//     return static_cast<Piece>(static_cast<int>(a) | static_cast<int>(b));
-// }
-
 #endif

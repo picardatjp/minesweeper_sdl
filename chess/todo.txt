@@ -1,8 +1,7 @@
 finish movement:
     castling
-    en passant
-    pawn can attack diagonally
+    en passant is actually more complicated than i though
     movement in check
 implement checkmate
-
+add in ability to load specific game with FEN
 refactor to look nicer, more maintainable

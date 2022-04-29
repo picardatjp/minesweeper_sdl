@@ -2,6 +2,7 @@
 #define SCREEN_HPP
 
 #include "SDL.h"
+#include <vector>
 
 // our screen class that handles basically everything
 class Screen
@@ -40,6 +41,8 @@ private:
     int initMY_offset = 0;
     // height of the grey ribbon at the top of the screen
     int ribbon_offset = 64;
+    std::vector<int> possible_moves_vec;
+    int possible_moves_arr[64] = {0};
 
 public:
     // constructor and destructor

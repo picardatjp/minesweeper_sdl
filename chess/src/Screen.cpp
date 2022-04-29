@@ -7,6 +7,7 @@
 #include <random>
 #include <ctime>
 #include <set>
+#include <vector>
 
 const char *tiles_path = "res/tiles.png";
 Game *game = nullptr;
@@ -127,6 +128,11 @@ void Screen::handleEvents()
             initMY_offset = y - (int(y / TILE_HEIGHT)) * TILE_HEIGHT;
             // get the tile we clicked on
             selected_tile = (initMY / TILE_HEIGHT) * 8 + initMX / TILE_WIDTH;
+            game->legalMoves(possible_moves_vec, selected_tile);
+            for (int i = 0; i < possible_moves_vec.size(); i++)
+            {
+                possible_moves_arr[possible_moves_vec[i]] = 1;
+            }
         }
         break;
     // we released the mouse button
@@ -153,6 +159,8 @@ void Screen::handleEvents()
             }
             // set to something not 0:63 so we draw all pieces on the board again
             selected_tile = -1;
+            possible_moves_vec.clear();
+            memset(possible_moves_arr, 0, sizeof(possible_moves_arr));
         }
         break;
     default:
@@ -172,12 +180,14 @@ void Screen::update()
 void Screen::render()
 {
     // clears the screen
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     // render board
     renderBoard();
     // render the piece we have clicked on
-    renderSelectedPiece();
+    if (selected_tile != -1)
+        renderSelectedPiece();
 
     // actually write to the screen
     SDL_RenderPresent(renderer);
@@ -217,9 +227,19 @@ void Screen::renderBoard()
     {
         // alternate white and green tiles for board background
         if (i % 2 == 0 && int(i / 8) % 2 == 0 || i % 2 == 1 && int(i / 8) % 2 == 1)
-            SDL_SetRenderDrawColor(renderer, 210, 185, 185, 255);
+        {
+            if (possible_moves_arr[i])
+                SDL_SetRenderDrawColor(renderer, 255, 195, 195, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, 255, 235, 210, 255);
+        }
         else
-            SDL_SetRenderDrawColor(renderer, 135, 70, 70, 255);
+        {
+            if (possible_moves_arr[i])
+                SDL_SetRenderDrawColor(renderer, 90, 10, 10, 255);
+            else
+                SDL_SetRenderDrawColor(renderer, 90, 40, 10, 255);
+        }
         // set the x and y of our 64x64 rectangle
         r.y = int(i / 8) * TILE_HEIGHT;
         r.x = (i % 8) * TILE_WIDTH;
@@ -313,6 +333,7 @@ void Screen::clean()
     SDL_DestroyTexture(texture);
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
+    delete (game);
     SDL_Quit();
     std::cout << "Game cleaned." << std::endl;
 }
