@@ -127,34 +127,34 @@ void Screen::handleEvents()
             // sorted = false;
             current_screen = 0;
         }
-        if (state[SDL_SCANCODE_1] && pic_selected != 0)
-        {
-            loadTexture(0);
-            newBoard();
-            sorted = false;
-            pic_selected = 0;
-        }
-        if (state[SDL_SCANCODE_2] && pic_selected != 1)
-        {
-            loadTexture(1);
-            newBoard();
-            sorted = false;
-            pic_selected = 1;
-        }
-        if (state[SDL_SCANCODE_3] && pic_selected != 2)
-        {
-            loadTexture(2);
-            newBoard();
-            sorted = false;
-            pic_selected = 2;
-        }
-        if (state[SDL_SCANCODE_4] && pic_selected != 3)
-        {
-            loadTexture(3);
-            newBoard();
-            sorted = false;
-            pic_selected = 3;
-        }
+        // if (state[SDL_SCANCODE_1] && pic_selected != 0)
+        // {
+        //     loadTexture(0);
+        //     newBoard();
+        //     sorted = false;
+        //     pic_selected = 0;
+        // }
+        // if (state[SDL_SCANCODE_2] && pic_selected != 1)
+        // {
+        //     loadTexture(1);
+        //     newBoard();
+        //     sorted = false;
+        //     pic_selected = 1;
+        // }
+        // if (state[SDL_SCANCODE_3] && pic_selected != 2)
+        // {
+        //     loadTexture(2);
+        //     newBoard();
+        //     sorted = false;
+        //     pic_selected = 2;
+        // }
+        // if (state[SDL_SCANCODE_4] && pic_selected != 3)
+        // {
+        //     loadTexture(3);
+        //     newBoard();
+        //     sorted = false;
+        //     pic_selected = 3;
+        // }
         break;
     case SDL_MOUSEBUTTONDOWN:
         if (event.button.button == SDL_BUTTON_LEFT)

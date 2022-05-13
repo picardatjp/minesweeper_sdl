@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     screen = new Screen();
 
     // initialize our game
-    screen->init("my game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 640, false);
+    screen->init("my game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 900, 720, false);
 
     // game->renderBackground();
 

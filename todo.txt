@@ -4,3 +4,8 @@ notepad
 paint
 pacman
 logisim
+karnuagh map
+sudoku
+bloons tower defense
+flood it
+simple 2d racing game

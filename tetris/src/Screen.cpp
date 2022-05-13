@@ -1,10 +1,12 @@
 #include "Screen.hpp"
+#include "Tetris.hpp"
+#include <memory>
 
 SDL_Renderer *Screen::renderer = nullptr;
 
 const char *tileset_path = "res/tiles.png";
 SDL_Texture *tile_texture;
-
+std::unique_ptr<Tetris> tetris = std::make_unique<Tetris>();
 SDL_Rect tileset[12];
 
 // Screen Constructor
@@ -68,6 +70,11 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
     SDL_Surface *tempSurface = IMG_Load(tileset_path);
     tile_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     SDL_FreeSurface(tempSurface);
+    Piece p;
+    p.piece = 6;
+    p.rotation = 0;
+    p.x_offset = p.y_offset = 0;
+    tetris->setCurrentPiece(p);
     for (int i = 0; i < 12; i++)
     {
         tileset[i].y = 0;
@@ -105,6 +112,14 @@ void Screen::handleEvents()
         if (state[SDL_SCANCODE_DOWN])
         {
         }
+        if (state[SDL_SCANCODE_C])
+        {
+            tetris->rotate(false);
+        }
+        if (state[SDL_SCANCODE_V])
+        {
+            tetris->rotate(true);
+        }
         // Tetrimino::moveLeft();
         break;
     case SDL_KeyCode::SDLK_d:
@@ -136,12 +151,63 @@ void Screen::update()
 void Screen::render()
 {
     // clears the screen
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-
+    renderBackground();
+    // renderBoard();
+    renderCurrentPiece();
     // draw stuff between clear() and present()
     // renderTetrimino();
     //  actually write to the screen
     SDL_RenderPresent(renderer);
+}
+
+void Screen::renderBackground()
+{
+    SDL_Rect r;
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    r.x = r.y = 0;
+    r.w = 25;
+    r.h = 400;
+    SDL_RenderFillRect(renderer, &r);
+    r.x = 400;
+    SDL_RenderFillRect(renderer, &r);
+    r.x = 0;
+    r.y = 400;
+    r.w = 425;
+    r.h = 25;
+    SDL_RenderFillRect(renderer, &r);
+}
+void Screen::renderBoard()
+{
+    SDL_Rect r;
+    r.w = r.h = 32;
+    r.x = r.y = 0;
+    for (int i = 0; i < 200; i++)
+    {
+        r.x = (i % BOARD_TILE_WIDTH) * 32;
+        r.y = (int(i / BOARD_TILE_HEIGHT)) * 32;
+        if (tetris->getDisplayFieldElement(i) == 0)
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        else
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &r);
+    }
+}
+void Screen::renderCurrentPiece()
+{
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    Piece p = tetris->getCurrentPiece();
+    SDL_Rect r;
+    r.h = r.w = 25;
+    r.x = r.y = 0;
+    for (int i = 0; i < 16; i++)
+    {
+        r.x = (i % 4) * 25;
+        r.y = (int(i / 4)) * 25;
+        if (tetris->getPieceElement(p.piece, p.rotation, i))
+            SDL_RenderFillRect(renderer, &r);
+    }
 }
 
 // clean up memory and close things

@@ -16,6 +16,12 @@ private:
     bool isRunning;
     // our game window
     SDL_Window *window;
+    int BOARD_TILE_WIDTH = 10;
+    int BOARD_TILE_HEIGHT = 20;
+    int BOARD_PX_HEIGHT = 600;
+    int BOARD_PX_WIDTH = 300;
+    int BOARD_X_OFFSET = 50;
+    int BOARD_Y_OFFSET = 50;
 
 public:
     // constructor and destructor
@@ -35,8 +41,8 @@ public:
     void clean();
 
     void renderBackground();
-
-    void renderTetrimino();
+    void renderBoard();
+    void renderCurrentPiece();
 
     // returns whether the game is currently running or not
     bool running() { return isRunning; }
