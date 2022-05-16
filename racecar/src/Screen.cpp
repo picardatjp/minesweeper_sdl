@@ -96,23 +96,22 @@ void Screen::handleEvents()
     case SDL_KEYDOWN:
         // key was pressed so we want which ones
         state = SDL_GetKeyboardState(NULL);
-        // if "B" was pressed
-        if (state[SDL_SCANCODE_LEFT])
+        if (state[SDL_SCANCODE_LEFT] && (dir_ & 4 == 0))
         {
             left_down_ = true;
             dir_ ^= 4;
         }
-        if (state[SDL_SCANCODE_RIGHT])
+        if (state[SDL_SCANCODE_RIGHT] && !(dir_ >> 6))
         {
             right_down_ = true;
             dir_ ^= 64;
         }
-        if (state[SDL_SCANCODE_UP])
+        if (state[SDL_SCANCODE_UP] && !(dir_ & 1))
         {
             up_down_ = true;
             dir_ ^= 1;
         }
-        if (state[SDL_SCANCODE_DOWN])
+        if (state[SDL_SCANCODE_DOWN] && !(dir_ >> 4))
         {
             down_down_ = true;
             dir_ ^= 16;
@@ -120,7 +119,6 @@ void Screen::handleEvents()
         break;
     case SDL_KEYUP:
         state = SDL_GetKeyboardState(NULL);
-        // if "B" was pressed
         if (!state[SDL_SCANCODE_LEFT])
         {
             left_down_ = false;
@@ -187,26 +185,33 @@ void Screen::renderCar()
     // SDL_RenderCopy(renderer, car_texture, NULL, &car_dest_);
     if (dir_ == 1)
         SDL_RenderCopyEx(renderer, car_texture, NULL, &car_dest_, 0, NULL, SDL_FLIP_NONE);
-    if (dir_ == 2)
+    else if (dir_ == 5)
         SDL_RenderCopyEx(renderer, car_texture, NULL, &car_dest_, 45, NULL, SDL_FLIP_NONE);
-    if (dir_ == 4)
+    else if (dir_ == 4)
         SDL_RenderCopyEx(renderer, car_texture, NULL, &car_dest_, 90, NULL, SDL_FLIP_NONE);
-    if (dir_ == 8)
+    else if (dir_ == 20)
         SDL_RenderCopyEx(renderer, car_texture, NULL, &car_dest_, 135, NULL, SDL_FLIP_NONE);
-    if (dir_ == 16)
+    else if (dir_ == 16)
         SDL_RenderCopyEx(renderer, car_texture, NULL, &car_dest_, 180, NULL, SDL_FLIP_NONE);
-    if (dir_ == 32)
+    else if (dir_ == 80)
         SDL_RenderCopyEx(renderer, car_texture, NULL, &car_dest_, 225, NULL, SDL_FLIP_NONE);
-    if (dir_ == 64)
+    else if (dir_ == 64)
         SDL_RenderCopyEx(renderer, car_texture, NULL, &car_dest_, 270, NULL, SDL_FLIP_NONE);
-    if (dir_ == 128)
+    // else if (dir_ == 128)
+    else
         SDL_RenderCopyEx(renderer, car_texture, NULL, &car_dest_, 315, NULL, SDL_FLIP_NONE);
+    for (int i = 7; i >= 0; i--)
+    {
+        std::cout << ((dir_ >> i) & 1) << " ";
+    }
+    std::cout << "\n";
 }
 
 void Screen::clean()
 {
     // destroy our textures, window, renderer and quit all SDL processes
     // SDL_DestroyTexture(buttons_texture);
+    SDL_DestroyTexture(car_texture);
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     // TTF_Quit();
@@ -267,5 +272,5 @@ void Screen::moveCar()
     car_dest_.x = int(car_x_);
     car_dest_.y = int(car_y_);
 
-    std::cout << "x: " << car_x_speed_ << " y: " << car_y_speed_ << "\n";
+    // std::cout << "x: " << car_x_speed_ << " y: " << car_y_speed_ << "\n";
 }

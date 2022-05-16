@@ -1,4 +1,2 @@
 the impossible check might not work still for some reason
 add new photos
-add outline to boxes
-make ribbon up top to select pictures

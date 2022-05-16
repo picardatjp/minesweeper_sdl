@@ -1,6 +1,11 @@
 #ifndef TETRIS_HPP
 #define TETRIS_HPP
 
+#include "SDL.h"
+#include "SDL_image.h"
+#include <stdlib.h>
+#include <iostream>
+
 struct Piece
 {
   int x_offset;
@@ -30,7 +35,7 @@ private:
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                            1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+                            1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
                             1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
   const int BOARD_WIDTH = 12;
@@ -38,6 +43,8 @@ private:
   int score = 0;
   bool lost = false;
   Piece current_piece;
+  Uint32 t;
+  int speed = 1000;
 
   // clockwise++, counter clockwise--
   int pieces[7][4][16] = {
@@ -172,6 +179,8 @@ public:
   int getDisplayFieldElement(int index) { return display_field[index]; }
   Piece getCurrentPiece() { return current_piece; }
   void setCurrentPiece(Piece p) { current_piece = p; }
+  void updateTime();
+  bool checkMove();
 };
 
 #endif

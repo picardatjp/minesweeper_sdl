@@ -33,14 +33,14 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
     // SDL_Init returns 0 if everything went well
     if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
     {
-        std::cout << "SDL initialized successfully." << std::endl;
+        // std::cout << "SDL initialized successfully." << std::endl;
 
         // we create the window here
         window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
-        if (window)
-            std::cout << "Window created successfully." << std::endl;
-        else
+        if (!window)
+            // std::cout << "Window created successfully." << std::endl;
+            // else
             std::cout << "Failed to create window." << std::endl;
 
         // create our renderer (not sure what the -1 and 0 are)
@@ -49,7 +49,7 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
         {
             // set the screen to white
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            std::cout << "Renderer created successfully." << std::endl;
+            // std::cout << "Renderer created successfully." << std::endl;
         }
         else
             std::cout << "Failed to create renderer." << std::endl;
@@ -73,7 +73,7 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
     Piece p;
     p.piece = 6;
     p.rotation = 0;
-    p.x_offset = p.y_offset = 0;
+    p.x_offset = p.y_offset = 5;
     tetris->setCurrentPiece(p);
     for (int i = 0; i < 12; i++)
     {
@@ -105,22 +105,31 @@ void Screen::handleEvents()
         state = SDL_GetKeyboardState(NULL);
         if (state[SDL_SCANCODE_RIGHT])
         {
+            tetris->moveRight();
+            mostRecentButton = 1;
         }
         if (state[SDL_SCANCODE_LEFT])
         {
+            tetris->moveLeft();
+            mostRecentButton = 2;
         }
         if (state[SDL_SCANCODE_DOWN])
         {
+            tetris->moveDown();
+            mostRecentButton = 3;
         }
         if (state[SDL_SCANCODE_C])
         {
             tetris->rotate(false);
+            mostRecentButton = 4;
         }
         if (state[SDL_SCANCODE_V])
         {
             tetris->rotate(true);
+            mostRecentButton = 5;
         }
         // Tetrimino::moveLeft();
+        std::cout << (tetris->checkMove() ? "good" : "bad");
         break;
     case SDL_KeyCode::SDLK_d:
         // Tetrimino::moveRight();
@@ -142,7 +151,7 @@ void Screen::handleEvents()
 // update game objects here eg. sprite locations adn whatnot
 void Screen::update()
 {
-    // update stuff here
+    // tetris->updateTime();
 
     // checkLine() whenever just before spawning a new tetrimino!!
 }
@@ -153,12 +162,13 @@ void Screen::render()
     // clears the screen
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    renderBackground();
-    // renderBoard();
-    renderCurrentPiece();
-    // draw stuff between clear() and present()
-    // renderTetrimino();
-    //  actually write to the screen
+
+    // renderBackground();
+
+    renderBoard();
+
+    // renderCurrentPiece();
+
     SDL_RenderPresent(renderer);
 }
 
@@ -181,17 +191,30 @@ void Screen::renderBackground()
 void Screen::renderBoard()
 {
     SDL_Rect r;
-    r.w = r.h = 32;
+    r.w = r.h = 25;
     r.x = r.y = 0;
-    for (int i = 0; i < 200; i++)
+    for (int i = 0; i < 252; i++)
     {
-        r.x = (i % BOARD_TILE_WIDTH) * 32;
-        r.y = (int(i / BOARD_TILE_HEIGHT)) * 32;
+        r.x = (i % BOARD_TILE_WIDTH) * 25;
+        r.y = (int(i / BOARD_TILE_WIDTH)) * 25;
         if (tetris->getDisplayFieldElement(i) == 0)
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        else
+        else if (tetris->getDisplayFieldElement(i) == 1)
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        else if (tetris->getDisplayFieldElement(i) == 2)
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &r);
+    }
+
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    Piece p = tetris->getCurrentPiece();
+    r.h = r.w = 25;
+    for (int i = 0; i < 16; i++)
+    {
+        r.x = (i % 4) * 25 + p.x_offset * 25;
+        r.y = (int(i / 4)) * 25 + p.y_offset * 25;
+        if (tetris->getPieceElement(p.piece, p.rotation, i))
+            SDL_RenderFillRect(renderer, &r);
     }
 }
 void Screen::renderCurrentPiece()
@@ -200,11 +223,10 @@ void Screen::renderCurrentPiece()
     Piece p = tetris->getCurrentPiece();
     SDL_Rect r;
     r.h = r.w = 25;
-    r.x = r.y = 0;
     for (int i = 0; i < 16; i++)
     {
-        r.x = (i % 4) * 25;
-        r.y = (int(i / 4)) * 25;
+        r.x = (i % 4) * 25 + p.x_offset * 25;
+        r.y = (int(i / 4)) * 25 + p.y_offset * 25;
         if (tetris->getPieceElement(p.piece, p.rotation, i))
             SDL_RenderFillRect(renderer, &r);
     }

@@ -16,12 +16,13 @@ private:
     bool isRunning;
     // our game window
     SDL_Window *window;
-    int BOARD_TILE_WIDTH = 10;
-    int BOARD_TILE_HEIGHT = 20;
+    int BOARD_TILE_WIDTH = 12;
+    int BOARD_TILE_HEIGHT = 21;
     int BOARD_PX_HEIGHT = 600;
     int BOARD_PX_WIDTH = 300;
     int BOARD_X_OFFSET = 50;
     int BOARD_Y_OFFSET = 50;
+    int mostRecentButton = 0;
 
 public:
     // constructor and destructor
