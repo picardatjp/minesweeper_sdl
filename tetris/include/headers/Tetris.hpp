@@ -173,7 +173,6 @@ public:
   void moveDown();
   void drop();
   void checkLine();
-  void checkLose();
   void clearBoard();
   void newGame();
   int getDisplayFieldElement(int index) { return display_field[index]; }
@@ -181,6 +180,10 @@ public:
   void setCurrentPiece(Piece p) { current_piece = p; }
   void updateTime();
   bool checkMove();
+  void endTurn();
+  void newPiece();
+  int getScore() { return score; }
+  bool getLost() { return lost; }
 };
 
 #endif

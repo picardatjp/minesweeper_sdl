@@ -70,11 +70,8 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
     SDL_Surface *tempSurface = IMG_Load(tileset_path);
     tile_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     SDL_FreeSurface(tempSurface);
-    Piece p;
-    p.piece = 6;
-    p.rotation = 0;
-    p.x_offset = p.y_offset = 5;
-    tetris->setCurrentPiece(p);
+    tetris->newGame();
+    std::cout << tetris->getScore() << "\n";
     for (int i = 0; i < 12; i++)
     {
         tileset[i].y = 0;
@@ -105,43 +102,33 @@ void Screen::handleEvents()
         state = SDL_GetKeyboardState(NULL);
         if (state[SDL_SCANCODE_RIGHT])
         {
-            tetris->moveRight();
-            mostRecentButton = 1;
+            if (!tetris->getLost())
+                tetris->moveRight();
         }
         if (state[SDL_SCANCODE_LEFT])
         {
-            tetris->moveLeft();
-            mostRecentButton = 2;
+            if (!tetris->getLost())
+                tetris->moveLeft();
         }
         if (state[SDL_SCANCODE_DOWN])
         {
-            tetris->moveDown();
-            mostRecentButton = 3;
+            if (!tetris->getLost())
+                tetris->moveDown();
         }
-        if (state[SDL_SCANCODE_C])
+        if (state[SDL_SCANCODE_Z])
         {
-            tetris->rotate(false);
-            mostRecentButton = 4;
+            if (!tetris->getLost())
+                tetris->rotate(false);
         }
-        if (state[SDL_SCANCODE_V])
+        if (state[SDL_SCANCODE_X])
         {
-            tetris->rotate(true);
-            mostRecentButton = 5;
+            if (!tetris->getLost())
+                tetris->rotate(true);
         }
-        // Tetrimino::moveLeft();
-        std::cout << (tetris->checkMove() ? "good" : "bad");
-        break;
-    case SDL_KeyCode::SDLK_d:
-        // Tetrimino::moveRight();
-        break;
-    case SDL_KeyCode::SDLK_q:
-        // Tetrimino::rotateCCW();
-        break;
-    case SDL_KeyCode::SDLK_e:
-        // Tetrimino::rotateCW();
-        break;
-    case SDL_KeyCode::SDLK_SPACE:
-        // Tetrimino::drop();
+        if (state[SDL_SCANCODE_P])
+        {
+            tetris->newGame();
+        }
         break;
     default:
         break;
@@ -151,8 +138,8 @@ void Screen::handleEvents()
 // update game objects here eg. sprite locations adn whatnot
 void Screen::update()
 {
-    // tetris->updateTime();
-
+    if (!tetris->getLost())
+        tetris->updateTime();
     // checkLine() whenever just before spawning a new tetrimino!!
 }
 
@@ -203,11 +190,33 @@ void Screen::renderBoard()
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         else if (tetris->getDisplayFieldElement(i) == 2)
             SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        else if (tetris->getDisplayFieldElement(i) == 3)
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        else if (tetris->getDisplayFieldElement(i) == 4)
+            SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+        else if (tetris->getDisplayFieldElement(i) == 5)
+            SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+        else if (tetris->getDisplayFieldElement(i) == 6)
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+        else
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_RenderFillRect(renderer, &r);
     }
-
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     Piece p = tetris->getCurrentPiece();
+    if (p.piece == 0)
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    else if (p.piece == 1)
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+    else if (p.piece == 2)
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+    else if (p.piece == 3)
+        SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+    else if (p.piece == 4)
+        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+    else if (p.piece == 5)
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    else
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
     r.h = r.w = 25;
     for (int i = 0; i < 16; i++)
     {

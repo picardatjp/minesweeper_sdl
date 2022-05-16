@@ -1,0 +1,7 @@
+add textures instead of colored rects
+fix rotation mod issue
+add scoreboard
+add next piece
+add menu screen
+add music?
+make pretty
