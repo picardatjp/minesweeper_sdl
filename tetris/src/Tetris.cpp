@@ -33,7 +33,12 @@ void Tetris::rotate(bool cw)
     {
         current_piece.rotation = (current_piece.rotation + 1) % 4;
         if (!checkMove())
-            current_piece.rotation = (current_piece.rotation - 1) % 4;
+        {
+            if (current_piece.rotation == 0)
+                current_piece.rotation = 3;
+            else
+                current_piece.rotation = (current_piece.rotation - 1) % 4;
+        }
     }
     else
     {
@@ -82,6 +87,16 @@ void Tetris::moveDown()
         // spawn new piece and check line
         endTurn();
     }
+}
+
+void Tetris::drop()
+{
+    while (checkMove())
+    {
+        current_piece.y_offset++;
+    }
+    current_piece.y_offset--;
+    endTurn();
 }
 
 bool Tetris::checkMove()

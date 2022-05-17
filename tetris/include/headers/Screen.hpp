@@ -23,6 +23,9 @@ private:
     int BOARD_X_OFFSET = 50;
     int BOARD_Y_OFFSET = 50;
     int mostRecentButton = 0;
+    int key_presses = 0;
+    int current_screen = 0;
+    int tile_size = 28;
 
 public:
     // constructor and destructor

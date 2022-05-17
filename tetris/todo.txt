@@ -5,3 +5,4 @@ add next piece
 add menu screen
 add music?
 make pretty
+make pieces more random, only new piece every second atm

@@ -4,10 +4,14 @@
 
 SDL_Renderer *Screen::renderer = nullptr;
 
-const char *tileset_path = "res/tiles.png";
+const char *tileset_path = "res/tiles2.png";
 SDL_Texture *tile_texture;
+const char *bg_path = "res/mainbg.png";
+SDL_Texture *bg_texture;
+const char *Abg_path = "res/Abg2.png";
+SDL_Texture *Abg_texture;
 std::unique_ptr<Tetris> tetris = std::make_unique<Tetris>();
-SDL_Rect tileset[12];
+SDL_Rect tileset[8];
 
 // Screen Constructor
 Screen::Screen()
@@ -33,25 +37,15 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
     // SDL_Init returns 0 if everything went well
     if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
     {
-        // std::cout << "SDL initialized successfully." << std::endl;
-
         // we create the window here
         window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
         if (!window)
-            // std::cout << "Window created successfully." << std::endl;
-            // else
             std::cout << "Failed to create window." << std::endl;
 
         // create our renderer (not sure what the -1 and 0 are)
         renderer = SDL_CreateRenderer(window, -1, 0);
-        if (renderer)
-        {
-            // set the screen to white
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            // std::cout << "Renderer created successfully." << std::endl;
-        }
-        else
+        if (!renderer)
             std::cout << "Failed to create renderer." << std::endl;
 
         // we made it here so the game is now running
@@ -70,9 +64,15 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
     SDL_Surface *tempSurface = IMG_Load(tileset_path);
     tile_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
     SDL_FreeSurface(tempSurface);
+    tempSurface = IMG_Load(bg_path);
+    bg_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
+    tempSurface = IMG_Load(Abg_path);
+    Abg_texture = SDL_CreateTextureFromSurface(renderer, tempSurface);
+    SDL_FreeSurface(tempSurface);
     tetris->newGame();
     std::cout << tetris->getScore() << "\n";
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 8; i++)
     {
         tileset[i].y = 0;
         tileset[i].x = i * 32;
@@ -100,6 +100,7 @@ void Screen::handleEvents()
     // no event happened
     case SDL_KEYDOWN:
         state = SDL_GetKeyboardState(NULL);
+        key_presses++;
         if (state[SDL_SCANCODE_RIGHT])
         {
             if (!tetris->getLost())
@@ -127,7 +128,20 @@ void Screen::handleEvents()
         }
         if (state[SDL_SCANCODE_P])
         {
-            tetris->newGame();
+            current_screen = 0;
+        }
+        if (state[SDL_SCANCODE_SPACE])
+        {
+            if (current_screen == 0)
+            {
+                current_screen = 2;
+                tetris->newGame();
+            }
+            else if (current_screen == 2)
+            {
+                if (!tetris->getLost())
+                    tetris->drop();
+            }
         }
         break;
     default:
@@ -138,7 +152,7 @@ void Screen::handleEvents()
 // update game objects here eg. sprite locations adn whatnot
 void Screen::update()
 {
-    if (!tetris->getLost())
+    if (!tetris->getLost() && current_screen == 2)
         tetris->updateTime();
     // checkLine() whenever just before spawning a new tetrimino!!
 }
@@ -147,97 +161,73 @@ void Screen::update()
 void Screen::render()
 {
     // clears the screen
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderClear(renderer);
 
     // renderBackground();
-
-    renderBoard();
+    if (current_screen == 0)
+    {
+        SDL_RenderCopy(renderer, bg_texture, NULL, NULL);
+    }
+    else if (current_screen == 2)
+    {
+        renderBoard();
+    }
 
     // renderCurrentPiece();
 
     SDL_RenderPresent(renderer);
 }
 
-void Screen::renderBackground()
-{
-    SDL_Rect r;
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    r.x = r.y = 0;
-    r.w = 25;
-    r.h = 400;
-    SDL_RenderFillRect(renderer, &r);
-    r.x = 400;
-    SDL_RenderFillRect(renderer, &r);
-    r.x = 0;
-    r.y = 400;
-    r.w = 425;
-    r.h = 25;
-    SDL_RenderFillRect(renderer, &r);
-}
 void Screen::renderBoard()
 {
+    SDL_RenderCopy(renderer, Abg_texture, NULL, NULL);
     SDL_Rect r;
-    r.w = r.h = 25;
+    r.w = r.h = tile_size;
     r.x = r.y = 0;
     for (int i = 0; i < 252; i++)
     {
-        r.x = (i % BOARD_TILE_WIDTH) * 25;
-        r.y = (int(i / BOARD_TILE_WIDTH)) * 25;
+        r.x = (i % BOARD_TILE_WIDTH) * tile_size + 308;
+        r.y = (int(i / BOARD_TILE_WIDTH)) * tile_size + 138;
         if (tetris->getDisplayFieldElement(i) == 0)
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_RenderCopy(renderer, tile_texture, &tileset[0], &r);
         else if (tetris->getDisplayFieldElement(i) == 1)
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderCopy(renderer, tile_texture, &tileset[1], &r);
         else if (tetris->getDisplayFieldElement(i) == 2)
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+            SDL_RenderCopy(renderer, tile_texture, &tileset[2], &r);
         else if (tetris->getDisplayFieldElement(i) == 3)
-            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            SDL_RenderCopy(renderer, tile_texture, &tileset[3], &r);
         else if (tetris->getDisplayFieldElement(i) == 4)
-            SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+            SDL_RenderCopy(renderer, tile_texture, &tileset[4], &r);
         else if (tetris->getDisplayFieldElement(i) == 5)
-            SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+            SDL_RenderCopy(renderer, tile_texture, &tileset[5], &r);
         else if (tetris->getDisplayFieldElement(i) == 6)
-            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-        else
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-        SDL_RenderFillRect(renderer, &r);
+            SDL_RenderCopy(renderer, tile_texture, &tileset[6], &r);
+        else if (tetris->getDisplayFieldElement(i) == 7)
+            SDL_RenderCopy(renderer, tile_texture, &tileset[7], &r);
     }
     Piece p = tetris->getCurrentPiece();
-    if (p.piece == 0)
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    else if (p.piece == 1)
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    else if (p.piece == 2)
-        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-    else if (p.piece == 3)
-        SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-    else if (p.piece == 4)
-        SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
-    else if (p.piece == 5)
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-    else
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    r.h = r.w = 25;
     for (int i = 0; i < 16; i++)
     {
-        r.x = (i % 4) * 25 + p.x_offset * 25;
-        r.y = (int(i / 4)) * 25 + p.y_offset * 25;
+        r.x = (i % 4) * tile_size + p.x_offset * tile_size + 308;
+        r.y = (int(i / 4)) * tile_size + p.y_offset * tile_size + 138;
         if (tetris->getPieceElement(p.piece, p.rotation, i))
-            SDL_RenderFillRect(renderer, &r);
-    }
-}
-void Screen::renderCurrentPiece()
-{
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    Piece p = tetris->getCurrentPiece();
-    SDL_Rect r;
-    r.h = r.w = 25;
-    for (int i = 0; i < 16; i++)
-    {
-        r.x = (i % 4) * 25 + p.x_offset * 25;
-        r.y = (int(i / 4)) * 25 + p.y_offset * 25;
-        if (tetris->getPieceElement(p.piece, p.rotation, i))
-            SDL_RenderFillRect(renderer, &r);
+        {
+            if (p.piece == 0)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[1], &r);
+            else if (p.piece == 1)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[2], &r);
+            else if (p.piece == 2)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[3], &r);
+            else if (p.piece == 3)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[4], &r);
+            else if (p.piece == 4)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[5], &r);
+            else if (p.piece == 5)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[6], &r);
+            else if (p.piece == 6)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[7], &r);
+        }
     }
 }
 
