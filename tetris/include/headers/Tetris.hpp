@@ -4,7 +4,6 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include <stdlib.h>
-#include <iostream>
 
 struct Piece
 {
@@ -41,10 +40,13 @@ private:
   const int BOARD_WIDTH = 12;
   const int BOARD_HEIGHT = 21;
   int score = 0;
-  bool lost = false;
+  bool lost = true;
   Piece current_piece;
+  Piece next_piece;
   Uint32 t;
   int speed = 1000;
+  int cnt;
+  int level = 0;
 
   // clockwise++, counter clockwise--
   int pieces[7][4][16] = {
@@ -170,7 +172,7 @@ public:
   void rotate(bool cw);
   void moveLeft();
   void moveRight();
-  void moveDown();
+  void moveDown(bool b);
   void drop();
   void checkLine();
   void clearBoard();
@@ -184,6 +186,7 @@ public:
   void newPiece();
   int getScore() { return score; }
   bool getLost() { return lost; }
+  Piece getNextPiece() { return next_piece; }
 };
 
 #endif

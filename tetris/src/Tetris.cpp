@@ -2,13 +2,14 @@
 #include "SDL.h"
 #include <iostream>
 #include <random>
-#include <ctime>
+// #include <ctime>
 
 Tetris::Tetris() { t = 0; }
 Tetris::~Tetris() {}
 void Tetris::newGame()
 {
     clearBoard();
+    newPiece();
     newPiece();
     lost = false;
     score = 0;
@@ -61,7 +62,7 @@ void Tetris::updateTime()
 {
     if (SDL_GetTicks() - t >= speed)
     {
-        moveDown();
+        moveDown(false);
         t = SDL_GetTicks();
     }
 }
@@ -78,7 +79,7 @@ void Tetris::moveRight()
     if (!checkMove())
         current_piece.x_offset--;
 }
-void Tetris::moveDown()
+void Tetris::moveDown(bool b)
 {
     current_piece.y_offset++;
     if (!checkMove())
@@ -87,6 +88,8 @@ void Tetris::moveDown()
         // spawn new piece and check line
         endTurn();
     }
+    else if (b)
+        score += 1;
 }
 
 void Tetris::drop()
@@ -94,7 +97,9 @@ void Tetris::drop()
     while (checkMove())
     {
         current_piece.y_offset++;
+        score += 1;
     }
+    score--;
     current_piece.y_offset--;
     endTurn();
 }
@@ -128,16 +133,17 @@ void Tetris::endTurn()
 
 void Tetris::newPiece()
 {
+    current_piece = next_piece;
     int x = 0;
-    srand((unsigned int)time(0));
+    srand(SDL_GetTicks());
     while (x == 0)
     {
-        x = rand() % 8;
+        x = (rand() + cnt++) % 8;
     }
-    current_piece.x_offset = 4;
-    current_piece.y_offset = -1;
-    current_piece.rotation = 0;
-    current_piece.piece = x - 1;
+    next_piece.x_offset = 4;
+    next_piece.y_offset = -1;
+    next_piece.rotation = 0;
+    next_piece.piece = x - 1;
 }
 
 void Tetris::checkLine()
@@ -166,12 +172,12 @@ void Tetris::checkLine()
         }
     }
     if (lines == 1)
-        score += 10;
+        score += 40 * (level + 1);
     if (lines == 2)
-        score += 30;
+        score += 100 * (level + 1);
     if (lines == 3)
-        score += 50;
+        score += 300 * (level + 1);
     if (lines == 4)
-        score += 100;
+        score += 1200 * (level + 1);
     std::cout << score << "\n";
 }

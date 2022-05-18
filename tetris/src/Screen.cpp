@@ -8,7 +8,7 @@ const char *tileset_path = "res/tiles2.png";
 SDL_Texture *tile_texture;
 const char *bg_path = "res/mainbg.png";
 SDL_Texture *bg_texture;
-const char *Abg_path = "res/Abg2.png";
+const char *Abg_path = "res/tetrisA2.png";
 SDL_Texture *Abg_texture;
 std::unique_ptr<Tetris> tetris = std::make_unique<Tetris>();
 SDL_Rect tileset[8];
@@ -114,7 +114,7 @@ void Screen::handleEvents()
         if (state[SDL_SCANCODE_DOWN])
         {
             if (!tetris->getLost())
-                tetris->moveDown();
+                tetris->moveDown(true);
         }
         if (state[SDL_SCANCODE_Z])
         {
@@ -187,8 +187,8 @@ void Screen::renderBoard()
     r.x = r.y = 0;
     for (int i = 0; i < 252; i++)
     {
-        r.x = (i % BOARD_TILE_WIDTH) * tile_size + 308;
-        r.y = (int(i / BOARD_TILE_WIDTH)) * tile_size + 138;
+        r.x = (i % BOARD_TILE_WIDTH) * tile_size + BOARD_X_OFFSET;
+        r.y = (int(i / BOARD_TILE_WIDTH)) * tile_size + BOARD_Y_OFFSET;
         if (tetris->getDisplayFieldElement(i) == 0)
             SDL_RenderCopy(renderer, tile_texture, &tileset[0], &r);
         else if (tetris->getDisplayFieldElement(i) == 1)
@@ -209,8 +209,49 @@ void Screen::renderBoard()
     Piece p = tetris->getCurrentPiece();
     for (int i = 0; i < 16; i++)
     {
-        r.x = (i % 4) * tile_size + p.x_offset * tile_size + 308;
-        r.y = (int(i / 4)) * tile_size + p.y_offset * tile_size + 138;
+        r.x = (i % 4) * tile_size + p.x_offset * tile_size + BOARD_X_OFFSET;
+        r.y = (int(i / 4)) * tile_size + p.y_offset * tile_size + BOARD_Y_OFFSET;
+        if (tetris->getPieceElement(p.piece, p.rotation, i) && r.y > 150)
+        {
+            if (p.piece == 0)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[1], &r);
+            else if (p.piece == 1)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[2], &r);
+            else if (p.piece == 2)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[3], &r);
+            else if (p.piece == 3)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[4], &r);
+            else if (p.piece == 4)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[5], &r);
+            else if (p.piece == 5)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[6], &r);
+            else if (p.piece == 6)
+                SDL_RenderCopy(renderer, tile_texture, &tileset[7], &r);
+        }
+    }
+    p = tetris->getNextPiece();
+    for (int i = 0; i < 16; i++)
+    {
+        if (p.piece == 6)
+        {
+            r.x = (i % 4) * tile_size + p.x_offset * tile_size + NEXT_PIECE_X_OFFSET + 27;
+            r.y = (int(i / 4)) * tile_size + p.y_offset * tile_size + NEXT_PIECE_Y_OFFSET;
+        }
+        else if (p.piece == 0)
+        {
+            r.x = (i % 4) * tile_size + p.x_offset * tile_size + NEXT_PIECE_X_OFFSET + 13;
+            r.y = (int(i / 4)) * tile_size + p.y_offset * tile_size + NEXT_PIECE_Y_OFFSET + 20;
+        }
+        else if (p.piece == 2)
+        {
+            r.x = (i % 4) * tile_size + p.x_offset * tile_size + NEXT_PIECE_X_OFFSET + 12;
+            r.y = (int(i / 4)) * tile_size + p.y_offset * tile_size + NEXT_PIECE_Y_OFFSET;
+        }
+        else
+        {
+            r.x = (i % 4) * tile_size + p.x_offset * tile_size + NEXT_PIECE_X_OFFSET;
+            r.y = (int(i / 4)) * tile_size + p.y_offset * tile_size + NEXT_PIECE_Y_OFFSET;
+        }
         if (tetris->getPieceElement(p.piece, p.rotation, i))
         {
             if (p.piece == 0)
@@ -236,6 +277,8 @@ void Screen::clean()
 {
     // destroy window, renderer and quit all SDL processes
     SDL_DestroyTexture(tile_texture);
+    SDL_DestroyTexture(Abg_texture);
+    SDL_DestroyTexture(bg_texture);
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();

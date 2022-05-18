@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     screen = new Screen();
 
     // initialize our game
-    screen->init("tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 900, 780, false);
+    screen->init("tetris", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 900, 830, false);
 
     // game->renderBackground();
 

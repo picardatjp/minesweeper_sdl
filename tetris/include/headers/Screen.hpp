@@ -20,8 +20,10 @@ private:
     int BOARD_TILE_HEIGHT = 21;
     int BOARD_PX_HEIGHT = 600;
     int BOARD_PX_WIDTH = 300;
-    int BOARD_X_OFFSET = 50;
-    int BOARD_Y_OFFSET = 50;
+    int BOARD_X_OFFSET = 310;
+    int BOARD_Y_OFFSET = 163;
+    int NEXT_PIECE_X_OFFSET = 552;
+    int NEXT_PIECE_Y_OFFSET = 410;
     int mostRecentButton = 0;
     int key_presses = 0;
     int current_screen = 0;

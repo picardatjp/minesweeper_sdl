@@ -1,9 +1,9 @@
 slide puzzle 2 - like slide puzzle but no indication of what the correct order should be
-hex editor
-notepad
-paint
+simple hex editor
+simple notepad
+simple paint
 pacman
-logisim
+simple logisim clone
 karnuagh map
 sudoku
 bloons tower defense
