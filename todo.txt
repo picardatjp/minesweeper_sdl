@@ -1,11 +1,27 @@
-slide puzzle 2 - like slide puzzle but no indication of what the correct order should be
-simple hex editor
-simple notepad
-simple paint
-pacman
-simple logisim clone
-karnuagh map
-sudoku
-bloons tower defense
-flood it
-simple 2d racing game
+priority: 1 is low, 10 is high.
+
+4 - slide puzzle 2 - like slide puzzle but no indication of what the correct order should be
+2 - simple hex editor
+4 - simple notepad
+8 - simple paint
+3 - pacman
+3 - simple logisim clone
+2 - karnuagh map
+8 - sudoku
+5 - bloons tower defense
+9 - flood it
+2 - simple 2d racing game
+8 - make general ui elements to add to games such as menus and buttons
+6 - simple 2d game with physics
+7 - make a ball bounce and roll down a hill
+7 - something with moving curves (bezier or splines)
+
+
+need to research:
+
+how bitmaps store picture data for raycaster textures.
+more bezier and spline stuff.
+how to make collision detection and intersections for custom shapes, ones that aren't rectangles.
+have a cache for ttf fonts to make for more optimized text rendering.
+need to learn more about opengl, maybe distant future.
+creating onClick() functionality, like do i use anonymous function or pass func pointer?

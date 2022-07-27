@@ -1,7 +1,7 @@
-#include "Screen.hpp"
+#include "Application.hpp"
 
 // global game
-Screen *screen = nullptr;
+Application *app = nullptr;
 
 // main function
 int main(int argc, char *argv[])
@@ -14,21 +14,19 @@ int main(int argc, char *argv[])
     int frameTime;
 
     // create new game
-    screen = new Screen();
+    app = new Application();
 
     // initialize our game
-    screen->init("project", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen->getWinWidth(), screen->getWinHeight(), false);
+    app->init("project", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, app->getWinWidth(), app->getWinHeight(), false);
 
-    // game->renderBackground();
-
-    // game loop, stops when Screen::isRunning is false
-    while (screen->running())
+    // game loop, stops when Application::is_running_ is false
+    while (app->running())
     {
         frameStart = SDL_GetTicks();
         // handle events, then update game objects, then render to the screen
-        screen->handleEvents();
-        screen->update();
-        screen->render();
+        app->handleEvents();
+        app->update();
+        app->render();
 
         frameTime = SDL_GetTicks() - frameStart;
         if (FRAME_DELAY > frameTime)
@@ -37,7 +35,7 @@ int main(int argc, char *argv[])
         }
     }
     // game is no longer running so we clean up
-    screen->clean();
+    app->clean();
 
     return 0;
 }
