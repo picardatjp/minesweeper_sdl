@@ -28,25 +28,25 @@ void Screen::init(const char *title, int xpos, int ypos, int width, int height, 
     if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
     {
         // we create the window here
-        window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
+        _window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
-        if (!window)
+        if (!_window)
             std::cout << "Failed to create window." << std::endl;
 
         // create our renderer (not sure what the -1 and 0 are)
-        renderer = SDL_CreateRenderer(window, -1, 0);
+        renderer = SDL_CreateRenderer(_window, -1, 0);
         if (!renderer)
             std::cout << "Failed to create renderer." << std::endl;
 
         // we made it here so the game is now running
-        isRunning = true;
+        _isRunning = true;
     }
     else
     {
         // SDL_Init returned something other than zero, so some error occured
         std::cout << "Failed to initialize SDL." << std::endl;
         // no longer running
-        isRunning = false;
+        _isRunning = false;
     }
 
     // instantiate stuff here
@@ -66,7 +66,7 @@ void Screen::handleEvents()
     // the window was closed
     case SDL_QUIT:
         // so we stop running the game
-        isRunning = false;
+        _isRunning = false;
         break;
     default:
         break;
@@ -95,7 +95,7 @@ void Screen::render()
 void Screen::clean()
 {
     // destroy window, renderer and quit all SDL processes
-    SDL_DestroyWindow(window);
+    SDL_DestroyWindow(_window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
 }

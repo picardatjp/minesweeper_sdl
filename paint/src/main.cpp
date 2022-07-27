@@ -1,19 +1,7 @@
-/******************************************************************************
- *
- *   Project: notepad
- *   Author: Jacob Picardat
- *   Date:   4/24/2022
- *   Purpose:    A simple notepad clone. Doing stuff like this
- *               in SDL is pretty much from scratch so I am just messing around
- *               with this one. Not really sure the best way to go about doing
- *               UI stuff such as buttons and textboxes so I am just winging it.
- *
- ******************************************************************************/
-
-#include "Screen.hpp"
+#include "Application.hpp"
 
 // global game
-Screen *screen = nullptr;
+Application *app = nullptr;
 
 // main function
 int main(int argc, char *argv[])
@@ -26,31 +14,36 @@ int main(int argc, char *argv[])
     Uint32 frameStart;
     int frameTime;
     // create new game
-    screen = new Screen();
+    app = new Application();
 
     // initialize our game
-    screen->init("racecar", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen->getWinWidth(), screen->getWinHeight(), false);
+    app->init("paint", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, app->getWinWidth(), app->getWinHeight(), false);
 
-    // game loop, stops when Game::isRunning is false
-    while (screen->running())
+    // frameStart = SDL_GetTicks();
+    // game loop
+    while (app->running())
     {
-        // set timer start
         frameStart = SDL_GetTicks();
         // handle events, then update game objects, then render to the screen
-        screen->handleEvents();
-        screen->update();
-        screen->render();
+        app->handleEvents();
+        app->update();
+        app->render();
 
         // sdl_getticks returns milliseconds since program start
         frameTime = SDL_GetTicks() - frameStart;
         // if we haven't used up our 1/60th of a second between frames then we delay until then
+        // if (FRAME_DELAY < frameTime)
+        // {
+        //     app->render();
+        //     frameStart = SDL_GetTicks();
+        // }
         if (FRAME_DELAY > frameTime)
         {
             SDL_Delay(FRAME_DELAY - frameTime);
         }
     }
     // game is no longer running so we clean up
-    screen->clean();
+    app->clean();
 
     return 0;
 }

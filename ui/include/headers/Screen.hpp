@@ -10,11 +10,11 @@ class Screen
 {
 private:
     // true if the game is running, false if not
-    bool isRunning;
+    bool _isRunning;
     // our game window
-    SDL_Window *window;
-    int WINDOW_HEIGHT = 600;
-    int WINDOW_WIDTH = 900;
+    SDL_Window *_window;
+    int _WINDOW_HEIGHT = 600;
+    int _WINDOW_WIDTH = 900;
 
 public:
     // constructor and destructor
@@ -34,10 +34,10 @@ public:
     void clean();
 
     // returns whether the game is currently running or not
-    bool running() { return isRunning; }
+    bool running() { return _isRunning; }
 
-    int getWinHeight() { return WINDOW_HEIGHT; }
-    int getWinWidth() { return WINDOW_WIDTH; }
+    int getWinHeight() { return _WINDOW_HEIGHT; }
+    int getWinWidth() { return _WINDOW_WIDTH; }
 
     // our game renderer
     static SDL_Renderer *renderer;
