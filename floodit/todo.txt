@@ -1,11 +1,3 @@
-add better textures/make color palettes for each level
-add levels
-fix rotation mod issue - maybe fixed not sure
-add scoreboard
-add more menu screens
-add highscores
-add menu screen
-add music?
-make pretty
-add comments
-add b type
+add ui to pick board size, restart, score, etc.
+check board dimensions to see how many turns youre allowed before game over
+add gameover screen and win screen, really just ui/ux stuff
