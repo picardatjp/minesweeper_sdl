@@ -296,7 +296,7 @@ void Screen::renderWorld()
         //////////// return (alpha << 24) | (red << 16) | (green << 8) | blue;
         /////////////////////////////////////
 
-        switch (worldMap[mapX][mapY])
+                switch (worldMap[mapX][mapY])
         {
         case 1:
             if (side == 1)
