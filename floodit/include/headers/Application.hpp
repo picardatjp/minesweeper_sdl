@@ -12,15 +12,20 @@ private:
     bool is_running_;
     // our game window
     SDL_Window *window_;
-    int WINDOW_HEIGHT_ = 600;
+    int WINDOW_HEIGHT_ = 700;
     int WINDOW_WIDTH_ = 600;
-    // will add top menu bar later
-    int GAME_OFFSET_ = 15;
-    std::vector<int> board;
-    int board_dim_;
+
+    int GAME_BOARD_DIM_ = 600;
+    std::vector<int> board_;
+    int board_num_cells_;
     int curr_color_;
     int picked_color_;
     int score_;
+    float go_r_, go_b_, go_g_;
+    float go_r_v_, go_b_v_, go_g_v_;
+    SDL_Texture *score_tex_;
+    SDL_Texture *ng_tex_;
+    SDL_Texture *bs_tex_;
 
 public:
     // constructor and destructor
@@ -47,9 +52,10 @@ public:
     void floodFill(int x, int y);
     bool checkGameEnd();
     void randomizeBoard();
-
+    void renderGameBoard();
+    void renderUI();
     // our game renderer
-    static SDL_Renderer *renderer;
+    SDL_Renderer *renderer = nullptr;
 };
 
 #endif
