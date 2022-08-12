@@ -25,8 +25,16 @@ private:
     bool space_down_ = false;
     bool jump_reset_ = true;
     float y_v_ = 0;
-    int pillar_width_ = 50;
+    int pillar_width_ = 100;
     int pillar_gap_ = 200;
+    SDL_Texture *pillar_tex_;
+    SDL_Texture *bird_tex_;
+    SDL_Texture *gameover_tex_;
+    SDL_Texture *numbers_tex_;
+    bool gameover_ = false;
+    int scores_[3] = {0, 0, 0};
+    int score_ = 0;
+    bool gamestart_ = false;
 
 public:
     // constructor and destructor
@@ -53,7 +61,10 @@ public:
 
     void checkPillarBounds();
     void randomizePillarY(int);
-    void gameStart();
+    void checkPillarCollision();
+    void getScores();
+    void displayEndScreen();
+    void displayScore();
 };
 
 #endif

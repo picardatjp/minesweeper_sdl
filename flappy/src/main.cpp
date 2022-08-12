@@ -1,4 +1,5 @@
 #include "Application.hpp"
+#include "iostream"
 
 // global game
 Application *app = nullptr;
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
     app = new Application();
 
     // initialize our game
-    app->init("project", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, app->getWinWidth(), app->getWinHeight(), false);
+    app->init("flappy", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, app->getWinWidth(), app->getWinHeight(), false);
 
     // game loop, stops when Application::is_running_ is false
     while (app->running())

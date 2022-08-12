@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     screen = new Screen();
 
     // initialize our game
-    screen->init("notepad", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen->getWinWidth(), screen->getWinHeight(), false);
+    screen->init("bloons", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen->getWinWidth(), screen->getWinHeight(), false);
 
     // game loop, stops when Game::isRunning is false
     while (screen->running())
