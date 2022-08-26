@@ -36,6 +36,5 @@ int main(int argc, char *argv[])
     }
     // game is no longer running so we clean up
     app->clean();
-
     return 0;
 }

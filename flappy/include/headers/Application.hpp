@@ -35,6 +35,7 @@ private:
     int scores_[3] = {0, 0, 0};
     int score_ = 0;
     bool gamestart_ = false;
+    Uint32 d_start_ = 0;
 
 public:
     // constructor and destructor

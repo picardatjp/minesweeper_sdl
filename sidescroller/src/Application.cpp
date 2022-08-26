@@ -1,6 +1,10 @@
-#include "Application.hpp"
-#include "SDL.h"
 #include <iostream>
+#include "SDL.h"
+#include "SDL_image.h"
+#include "Application.hpp"
+#include "Sprite.hpp"
+
+const char *character_spritesheet_path = "../res/character_spritesheet.png";
 
 // Application Constructor
 Application::Application()
@@ -34,6 +38,7 @@ void Application::init(const char *title, int xpos, int ypos, int width, int hei
 
         // create our renderer (not sure what the -1 and 0 are)
         renderer_ = SDL_CreateRenderer(window_, -1, 0);
+        IMG_Init(IMG_INIT_PNG);
         if (!renderer_)
             std::cout << "Failed to create renderer." << std::endl;
 
@@ -49,6 +54,8 @@ void Application::init(const char *title, int xpos, int ypos, int width, int hei
     }
 
     // instantiate stuff here
+    SDL_Surface *ts = IMG_Load(character_spritesheet_path);
+    character_.setTex(SDL_CreateTextureFromSurface(renderer_, ts));
 }
 
 // this is where events like input are handled
@@ -86,7 +93,7 @@ void Application::render()
     SDL_RenderClear(renderer_);
 
     // render stuff here
-    SDL_Rect rect = {100, 100, 100, 100};
+    SDL_Rect rect = {100, 100, 64, 96};
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 0);
     SDL_RenderFillRect(renderer_, &rect);
 
@@ -97,6 +104,7 @@ void Application::render()
 void Application::clean()
 {
     // destroy window, renderer and quit all SDL processes
+    SDL_DestroyTexture(character_.getTex());
     SDL_DestroyWindow(window_);
     SDL_DestroyRenderer(renderer_);
     SDL_Quit();

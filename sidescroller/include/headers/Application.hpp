@@ -2,6 +2,7 @@
 #define APPLICATION_H
 
 #include "SDL.h"
+#include "Sprite.hpp"
 
 // our game class that handles basically everything
 class Application
@@ -15,6 +16,7 @@ private:
     SDL_Window *window_;
     int WINDOW_HEIGHT_ = 600;
     int WINDOW_WIDTH_ = 900;
+    Sprite character_;
 
 public:
     // constructor and destructor

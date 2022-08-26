@@ -146,7 +146,8 @@ void Application::update()
         }
         else
         {
-            if (space_down_)
+
+            if (space_down_ && SDL_GetTicks() - d_start_ > 500)
             {
                 gameover_ = false;
                 y_v_ = -10.0f;
@@ -255,6 +256,7 @@ void Application::checkPillarCollision()
             {
                 gameover_ = true;
                 getScores();
+                d_start_ = SDL_GetTicks();
             }
         }
     }
