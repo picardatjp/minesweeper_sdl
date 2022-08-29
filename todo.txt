@@ -3,7 +3,7 @@ priority: 1 is low, 10 is high.
 4 - slide puzzle 2 - like slide puzzle but no indication of what the correct order should be
 2 - simple hex editor
 4 - simple notepad
-7 - simple paint
+7gbb., - simple paint
 3 - pacman
 3 - simple logisim clone
 2 - karnuagh map
