@@ -2,6 +2,8 @@
 #define APPLICATION_H
 
 #include "SDL.h"
+#include "Card.hpp"
+#include <vector>
 
 // our game class that handles basically everything
 class Application
@@ -15,6 +17,9 @@ private:
     SDL_Window *window_;
     int WINDOW_HEIGHT_ = 600;
     int WINDOW_WIDTH_ = 900;
+    int CARD_WIDTH_ = 75;
+    int CARD_HEIGHT_ = 105;
+    SDL_Texture *cards_tex_;
 
 public:
     // constructor and destructor
@@ -38,6 +43,10 @@ public:
 
     int getWinHeight() { return WINDOW_HEIGHT_; }
     int getWinWidth() { return WINDOW_WIDTH_; }
+    void shuffleDeck();
+    void populateDeck();
+    void drawCards();
+    int getRand(int l, int u);
 };
 
 #endif

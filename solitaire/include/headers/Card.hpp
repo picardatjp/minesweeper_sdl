@@ -14,8 +14,8 @@ private:
     int suit_;
 
 public:
-    SDL_Rect getSrcRect() { return sRect_; }
-    SDL_Rect getDestRect() { return dRect_; }
+    SDL_Rect *getSrcRect() { return &sRect_; }
+    SDL_Rect *getDestRect() { return &dRect_; }
     void setSrcRect(SDL_Rect r) { sRect_ = r; }
     void setDestRect(SDL_Rect r) { dRect_ = r; }
     int getNumber() { return number_; }
