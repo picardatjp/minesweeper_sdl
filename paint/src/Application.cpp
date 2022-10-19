@@ -94,6 +94,7 @@ void Application::handleEvents()
                     point pos = path.getSplinePoint(t);
                     setPixel((int)pos.x, (int)pos.y, screen_save);
                     SDL_BlitSurface(screen_save, NULL, screen, NULL);
+                    SDL_RenderDrawPoint(renderer_, (int)x, (int)y);
                 }
             }
             else if (path.points.size() == 3)

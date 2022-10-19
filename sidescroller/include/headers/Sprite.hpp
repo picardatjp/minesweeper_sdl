@@ -35,7 +35,7 @@ public:
     void setDest(SDL_Rect dest) { dest_ = dest; }
     void setTex(SDL_Texture *tex) { tex_ = tex; }
     void setRot(int rot) { rot_ = rot; }
-    void Flip() { is_flipped_ != is_flipped_; }
+    void flip() { is_flipped_ != is_flipped_; }
     void addSrc(SDL_Rect src) { all_src_.push_back(src); }
 };
 
