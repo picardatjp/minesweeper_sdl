@@ -3,6 +3,8 @@
 
 #include "SDL.h"
 
+enum bloon_type = {red, blue, yellow, green, black, white};
+
 class Bloon
 {
 private:
