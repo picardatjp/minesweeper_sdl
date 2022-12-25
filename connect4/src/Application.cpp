@@ -57,11 +57,15 @@ void Application::handleEvents()
     // create an event
     SDL_Event event;
     const Uint8 *state = NULL;
+    int x, y;
     // poll the event
     SDL_PollEvent(&event);
     // find what events happened
     switch (event.type)
     {
+    case SDL_MOUSEBUTTONUP:
+        SDL_GetMouseState(&x, &y);
+        // i was here when i stopped
     // the window was closed
     case SDL_QUIT:
         // so we stop running the game
@@ -86,9 +90,8 @@ void Application::render()
     SDL_RenderClear(renderer_);
 
     // render stuff here
-    SDL_Rect rect = {100, 100, 100, 100};
-    SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 0);
-    SDL_RenderFillRect(renderer_, &rect);
+    drawGrid();
+    drawPieces();
 
     SDL_RenderPresent(renderer_);
 }
@@ -100,4 +103,29 @@ void Application::clean()
     SDL_DestroyWindow(window_);
     SDL_DestroyRenderer(renderer_);
     SDL_Quit();
+}
+
+void Application::drawGrid()
+{
+    SDL_SetRenderDrawColor(renderer_, 127, 255, 255, 255);
+    SDL_Rect row = {border_buffer_, border_buffer_, WINDOW_WIDTH_ - (border_buffer_ * 2), 5};
+    SDL_Rect column = {border_buffer_, border_buffer_, 5, WINDOW_HEIGHT_ - (border_buffer_ * 2)};
+    int cell_width = (WINDOW_WIDTH_ - (border_buffer_ * 2)) / board_width_;
+    int cell_height = (WINDOW_HEIGHT_ - (border_buffer_ * 2)) / board_height_;
+    for (int i = 0; i < board_height_ + 1; i++)
+    {
+        SDL_RenderFillRect(renderer_, &row);
+        row.y += cell_height;
+    }
+    for (int i = 0; i < board_width_ + 1; i++)
+    {
+        SDL_RenderFillRect(renderer_, &column);
+        column.x += cell_width;
+    }
+}
+void Application::drawPieces()
+{
+    SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 255);
+
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
 }
