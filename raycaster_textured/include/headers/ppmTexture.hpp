@@ -10,7 +10,6 @@ void get_ppm_texture(uint8_t *arr, const char *filename)
     std::streampos size;
     char *memblock;
     std::string s = filename;
-    s = "../" + s;
     std::ifstream infile(s.c_str(), std::fstream::in | std::fstream::binary | std::fstream::ate);
 
     if (infile.is_open())

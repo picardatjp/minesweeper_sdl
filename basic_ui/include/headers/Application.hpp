@@ -1,25 +1,28 @@
-#ifndef SCREEN_H
-#define SCREEN_H
+#ifndef APPLICATION_H
+#define APPLICATION_H
 
 #include "SDL.h"
-#include "SDL_image.h"
-#include <iostream>
+#include "Button.hpp"
 
 // our game class that handles basically everything
-class Screen
+class Application
 {
 private:
     // true if the game is running, false if not
-    bool _isRunning;
+    bool is_running_;
+    // our game renderer
+    SDL_Renderer *renderer_;
     // our game window
-    SDL_Window *_window;
-    int _WINDOW_HEIGHT = 600;
-    int _WINDOW_WIDTH = 900;
+    SDL_Window *window_;
+    int WINDOW_HEIGHT_ = 600;
+    int WINDOW_WIDTH_ = 900;
+
+    Button btn_;
 
 public:
     // constructor and destructor
-    Screen();
-    ~Screen();
+    Application();
+    ~Application();
 
     // init declaration, this starts up the game
     void init(const char *title, int xpos, int ypos, int width, int height, bool fullscreen);
@@ -28,19 +31,16 @@ public:
     void handleEvents();
     // updates game objects
     void update();
-    // refreshes screen with updated info
+    // refreshes app with updated info
     void render();
     // cleans game memory and stops SDL
     void clean();
 
     // returns whether the game is currently running or not
-    bool running() { return _isRunning; }
+    bool running() { return is_running_; }
 
-    int getWinHeight() { return _WINDOW_HEIGHT; }
-    int getWinWidth() { return _WINDOW_WIDTH; }
-
-    // our game renderer
-    static SDL_Renderer *renderer;
+    int getWinHeight() { return WINDOW_HEIGHT_; }
+    int getWinWidth() { return WINDOW_WIDTH_; }
 };
 
 #endif
