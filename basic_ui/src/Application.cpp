@@ -2,9 +2,11 @@
 #include "Button.hpp"
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_ttf.h"
 #include <iostream>
 
 const char *btn_tex = "../res/btn_bg.png";
+const char *fp = "../res/fonts/bahnschrift.ttf";
 
 // Application Constructor
 Application::Application()
@@ -39,8 +41,10 @@ void Application::init(const char *title, int xpos, int ypos, int width, int hei
         // create our renderer (not sure what the -1 and 0 are)
         renderer_ = SDL_CreateRenderer(window_, -1, 0);
         IMG_Init(IMG_INIT_PNG);
+        TTF_Init();
         if (!renderer_)
-            std::cout << "Failed to create renderer." << std::endl;
+            std::cout
+                << "Failed to create renderer." << std::endl;
 
         // we made it here so the game is now running
         is_running_ = true;
@@ -61,6 +65,7 @@ void Application::init(const char *title, int xpos, int ypos, int width, int hei
     SDL_FreeSurface(ts);
     btn_.src = {0, 0, 100, 100};
     btn_.dest = {300, 300, 100, 100};
+    lbl_.init(renderer_, "hellow", fp, 16, {255, 0, 255, 255}, {400, 100, 0, 0});
 }
 
 // this is where events are handled
@@ -99,11 +104,15 @@ void Application::handleEvents()
 void Application::update()
 {
     // update positions and states here
+    // if screen content modified, render. otherwise dont bother rendering and wasting cpu
+    // modified = true;
 }
 
 // our render function which draws to the screen
 void Application::render()
 {
+    // if(modified){render everything} else {dont}
+
     // clears the screen
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
     SDL_RenderClear(renderer_);
@@ -113,6 +122,7 @@ void Application::render()
     SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 0);
     SDL_RenderFillRect(renderer_, &rect);
     btn_.render(renderer_);
+    lbl_.render(renderer_);
 
     SDL_RenderPresent(renderer_);
 }
@@ -121,7 +131,8 @@ void Application::render()
 void Application::clean()
 {
     // destroy window, renderer and quit all SDL processes
-    SDL_DestroyTexture(btn_.getTexture());
+    btn_.free();
+    lbl_.free();
     SDL_DestroyWindow(window_);
     SDL_DestroyRenderer(renderer_);
     IMG_Quit();

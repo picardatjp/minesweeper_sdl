@@ -3,6 +3,7 @@
 
 #include "SDL.h"
 #include "Button.hpp"
+#include "Label.hpp"
 
 // our game class that handles basically everything
 class Application
@@ -18,6 +19,7 @@ private:
     int WINDOW_WIDTH_ = 900;
 
     Button btn_;
+    Label lbl_;
 
 public:
     // constructor and destructor
