@@ -47,6 +47,7 @@ private:
   int speed = 1000;
   int cnt;
   int level = 0;
+  int lines_ = 0;
 
   // clockwise++, counter clockwise--
   int pieces[7][4][16] = {
@@ -187,6 +188,7 @@ public:
   int getScore() { return score; }
   bool getLost() { return lost; }
   Piece getNextPiece() { return next_piece; }
+  int getLines() { return lines_; }
 };
 
 #endif

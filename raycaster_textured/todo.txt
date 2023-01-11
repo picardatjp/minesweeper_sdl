@@ -1,1 +1,2 @@
-add textures to walls
+crashed while walking
+get stuck inside wall, wall collision error

@@ -3,6 +3,7 @@
 
 #include "SDL.h"
 #include "SDL_image.h"
+#include "Label.hpp"
 #include <stdlib.h>
 #include <iostream>
 
@@ -28,6 +29,15 @@ private:
     int key_presses = 0;
     int current_screen = 0;
     int tile_size = 28;
+    Label score_lbl_;
+    int score_lbl_val = 0;
+    Label level_lbl_;
+    int level_lbl_val = 0;
+    Label top_score_lbl_;
+    Label stat_lbls[7];
+    int stat_lbl_vals[7];
+    Label lines_lbl_;
+    int lines_lbl_val = 0;
 
 public:
     // constructor and destructor
@@ -46,9 +56,12 @@ public:
     // cleans game memory and stops SDL
     void clean();
 
+    void setScoreLabel(int s) { score_lbl_.setMessage(renderer, std::to_string(s)); }
+    void renderLabels();
     void renderBackground();
     void renderBoard();
     void renderCurrentPiece();
+    void initLabels();
 
     // returns whether the game is currently running or not
     bool running() { return isRunning; }

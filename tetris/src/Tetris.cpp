@@ -179,5 +179,7 @@ void Tetris::checkLine()
         score += 300 * (level + 1);
     if (lines == 4)
         score += 1200 * (level + 1);
-    std::cout << score << "\n";
+
+    lines_ += lines;
+    // std::cout << score << "\n";
 }
