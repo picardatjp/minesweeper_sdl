@@ -4,6 +4,7 @@
 #include "SDL.h"
 #include "Button.hpp"
 #include "Label.hpp"
+#include "Shapes.hpp"
 
 // our game class that handles basically everything
 class Application
@@ -17,9 +18,16 @@ private:
     SDL_Window *window_;
     int WINDOW_HEIGHT_ = 600;
     int WINDOW_WIDTH_ = 900;
-
-    Button btn_;
-    Label lbl_;
+    SDL_Texture *main_menu_bg_;
+    Button play_btn_;
+    Button back_to_main_btn_;
+    Button settings_btn_;
+    Label main_menu_label_;
+    Label game_label_;
+    Circle c_;
+    bool main_menu_visible_ = true;
+    bool settings_visible_ = false;
+    bool game_visible_ = false;
 
 public:
     // constructor and destructor

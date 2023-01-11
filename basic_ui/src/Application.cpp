@@ -4,9 +4,11 @@
 #include "SDL_image.h"
 #include "SDL_ttf.h"
 #include <iostream>
+#include <functional>
 
 const char *btn_tex = "../res/btn_bg.png";
 const char *fp = "../res/fonts/bahnschrift.ttf";
+const char *main_menu_bg_path = "../res/main_menu_bg.png";
 
 // Application Constructor
 Application::Application()
@@ -56,16 +58,23 @@ void Application::init(const char *title, int xpos, int ypos, int width, int hei
         // no longer running
         is_running_ = false;
     }
-    btn_.setOnClick([]()
-                    { std::cout << "hello!!!!!" << std::endl; });
-
     // instantiate stuff here
+
     SDL_Surface *ts = IMG_Load(btn_tex);
-    btn_.setTexture(SDL_CreateTextureFromSurface(renderer_, ts));
+    play_btn_.init({0, 0, 100, 100}, {300, 300, 100, 100}, SDL_CreateTextureFromSurface(renderer_, ts), "play", renderer_);
+    play_btn_.setOnClick([this]
+                         { std::cout << "hello!!!!!" << std::endl;
+                         main_menu_visible_=false;
+                        game_visible_=true; });
+    back_to_main_btn_.init({0, 0, 100, 100}, {10, 10, 100, 100}, SDL_CreateTextureFromSurface(renderer_, ts), "main menu", renderer_);
+    back_to_main_btn_.setOnClick([this]
+                                 {main_menu_visible_=true;game_visible_=false; });
+    ts = IMG_Load(main_menu_bg_path);
+    main_menu_bg_ = SDL_CreateTextureFromSurface(renderer_, ts);
     SDL_FreeSurface(ts);
-    btn_.src = {0, 0, 100, 100};
-    btn_.dest = {300, 300, 100, 100};
-    lbl_.init(renderer_, "hellow", fp, 16, {255, 0, 255, 255}, {400, 100, 0, 0});
+    main_menu_label_.init(renderer_, "Main Menu", fp, 72, {0, 0, 0, 255}, {WINDOW_WIDTH_ >> 1, WINDOW_HEIGHT_ >> 2, 0, 0});
+    game_label_.init(renderer_, "this is the game screen!", fp, 72, {255, 255, 0, 255}, {WINDOW_WIDTH_ >> 1, WINDOW_HEIGHT_ >> 1, 0, 0});
+    c_.init(30, {50, 50}, {255, 255, 0, 255}, {50, 100, 255, 255}, 2, true, true);
 }
 
 // this is where events are handled
@@ -90,9 +99,23 @@ void Application::handleEvents()
         SDL_GetMouseState(&x, &y);
         r.x = x;
         r.y = y;
-        if (SDL_HasIntersection(&btn_.dest, &r) == SDL_TRUE)
+        if (game_visible_)
         {
-            btn_.onClick();
+            if (SDL_HasIntersection(&back_to_main_btn_.dest, &r) == SDL_TRUE)
+            {
+                back_to_main_btn_.onClick();
+            }
+        }
+        if (main_menu_visible_)
+        {
+            if (SDL_HasIntersection(&play_btn_.dest, &r) == SDL_TRUE)
+            {
+                play_btn_.onClick();
+            }
+            // if (SDL_HasIntersection(&settings_btn_.dest, &r) == SDL_TRUE)
+            // {
+            //     settings_btn_.onClick();
+            // }
         }
         break;
     default:
@@ -112,17 +135,26 @@ void Application::update()
 void Application::render()
 {
     // if(modified){render everything} else {dont}
-
     // clears the screen
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 0);
     SDL_RenderClear(renderer_);
-
-    // render stuff here
-    SDL_Rect rect = {100, 100, 100, 100};
-    SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 0);
-    SDL_RenderFillRect(renderer_, &rect);
-    btn_.render(renderer_);
-    lbl_.render(renderer_);
+    if (game_visible_)
+    {
+        back_to_main_btn_.render(renderer_);
+        game_label_.render(renderer_);
+    }
+    else if (main_menu_visible_)
+    {
+        // background
+        SDL_RenderCopy(renderer_, main_menu_bg_, NULL, NULL);
+        play_btn_.render(renderer_);
+        // settings_btn_.render(renderer_);
+        main_menu_label_.render(renderer_);
+        c_.render(renderer_);
+    }
+    else if (settings_visible_)
+    {
+    }
 
     SDL_RenderPresent(renderer_);
 }
@@ -131,8 +163,11 @@ void Application::render()
 void Application::clean()
 {
     // destroy window, renderer and quit all SDL processes
-    btn_.free();
-    lbl_.free();
+    play_btn_.free();
+    settings_btn_.free();
+    main_menu_label_.free();
+    game_label_.free();
+    SDL_DestroyTexture(main_menu_bg_);
     SDL_DestroyWindow(window_);
     SDL_DestroyRenderer(renderer_);
     IMG_Quit();

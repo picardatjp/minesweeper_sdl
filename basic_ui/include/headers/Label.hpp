@@ -61,14 +61,14 @@ public:
             }
         }
         SDL_FreeSurface(ts);
-        modified_ = true;
+        // modified_ = true;
     }
     void render(SDL_Renderer *r)
     {
         // if (modified_ && initialized)
         // {
         SDL_RenderCopy(r, texture_, NULL, &dest);
-        modified_ = false;
+        // modified_ = false;
         // }
     }
     void free()
