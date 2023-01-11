@@ -189,6 +189,7 @@ void Screen::renderBoard()
     {
         r.x = (i % BOARD_TILE_WIDTH) * tile_size + BOARD_X_OFFSET;
         r.y = (int(i / BOARD_TILE_WIDTH)) * tile_size + BOARD_Y_OFFSET;
+        // okay im actually so stupid
         if (tetris->getDisplayFieldElement(i) == 0)
             SDL_RenderCopy(renderer, tile_texture, &tileset[0], &r);
         else if (tetris->getDisplayFieldElement(i) == 1)
@@ -213,6 +214,7 @@ void Screen::renderBoard()
         r.y = (int(i / 4)) * tile_size + p.y_offset * tile_size + BOARD_Y_OFFSET;
         if (tetris->getPieceElement(p.piece, p.rotation, i) && r.y > 150)
         {
+            // again wtf, why did i do this and not p.piece+1 ???????
             if (p.piece == 0)
                 SDL_RenderCopy(renderer, tile_texture, &tileset[1], &r);
             else if (p.piece == 1)
@@ -254,6 +256,7 @@ void Screen::renderBoard()
         }
         if (tetris->getPieceElement(p.piece, p.rotation, i))
         {
+            // what the fuck is this
             if (p.piece == 0)
                 SDL_RenderCopy(renderer, tile_texture, &tileset[1], &r);
             else if (p.piece == 1)

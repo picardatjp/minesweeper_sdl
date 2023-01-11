@@ -1,15 +1,11 @@
 #include "Application.hpp"
 #include "SDL.h"
 #include <iostream>
+#include <vector>
 #include "Gate.hpp"
+#include <unordered_map>
 
-Gate g1, g2;
 void drawCircle(SDL_Renderer *r, int cx, int cy, int radius);
-
-struct mg
-{
-    Gate g;
-};
 
 // Application Constructor
 Application::Application()
@@ -58,11 +54,15 @@ void Application::init(const char *title, int xpos, int ypos, int width, int hei
     }
 
     // instantiate stuff here
-
+    Gate g1, g2;
     g1.setType(G_AND);
-    g2.setType(G_NOR);
     g1.setRect({100, 100, 100, 100});
-    g2.setRect({100, 100, 100, 100});
+    gates_.push_back(g1);
+    g2.setType(G_NOR);
+    g2.setRect({300, 300, 100, 100});
+    g2.setDir(G_NORTH);
+    g2.connectInputA(0);
+    gates_.push_back(g2);
 }
 
 // this is where events like input are handled
@@ -100,9 +100,8 @@ void Application::render()
     SDL_RenderClear(renderer_);
 
     // render stuff here
-    SDL_SetRenderDrawColor(renderer_, 255, 0, 0, 0);
-    SDL_RenderDrawRect(renderer_, g1.getRect());
-    SDL_SetRenderDrawColor(renderer_, 255, 255, 0, 0);
+    drawWires();
+    drawGates();
 
     // drawCircle(renderer_, 300, 300, 25);
     SDL_RenderPresent(renderer_);
@@ -148,6 +147,82 @@ void drawCircle(SDL_Renderer *r, int cx, int cy, int radius)
             x--;
             tx += 2;
             error += tx - d;
+        }
+    }
+}
+
+void Application::drawGates()
+{
+    for (int i = 0; i < gates_.size(); i++)
+    {
+        SDL_Color c = gates_[i].getColor();
+        SDL_SetRenderDrawColor(renderer_, c.r, c.g, c.b, c.a);
+        SDL_RenderDrawRect(renderer_, gates_[i].getRect());
+    }
+}
+
+void Application::drawWires()
+{
+    SDL_SetRenderDrawColor(renderer_, 0, 0, 255, 255);
+    for (int i = 0; i < gates_.size(); i++)
+    {
+        if (gates_[i].getDir() == G_NORTH)
+        {
+            int x1, x2, y1, y2 = 0;
+            int iai = gates_[i].getiai();
+            int ibi = gates_[i].getibi();
+            if (iai != -1)
+            {
+                SDL_Rect *r1 = gates_[i].getRect();
+                SDL_Rect *r2 = gates_[iai].getRect();
+                x1 = (int)(r1->x + (r1->w >> 2));
+                y1 = (int)(r1->y + r1->h);
+                x2 = (int)(r2->x + (r2->w >> 1));
+                y2 = (int)(r2->y);
+                SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+            }
+            if (ibi != -1)
+            {
+                SDL_Rect *r1 = gates_[i].getRect();
+                SDL_Rect *r2 = gates_[ibi].getRect();
+                x1 = (int)(r1->x - (r1->w >> 2) + r1->w);
+                y1 = (int)(r1->y + r1->h);
+                x2 = (int)(r2->x + (r2->w >> 1));
+                y2 = (int)(r2->y);
+                SDL_RenderDrawLine(renderer_, x1, r1->y, r2->x, r2->y);
+            }
+        }
+        else if (gates_[i].getDir() == G_SOUTH)
+        {
+            int x1, x2, y1, y2 = 0;
+            int iai = gates_[i].getiai();
+            int ibi = gates_[i].getibi();
+            if (iai != -1)
+            {
+                SDL_Rect *r1 = gates_[i].getRect();
+                SDL_Rect *r2 = gates_[iai].getRect();
+                x1 = (int)(r1->x + (r1->w >> 2));
+                y1 = (int)(r1->y + r1->h);
+                x2 = (int)(r2->x + (r2->w >> 1));
+                y2 = (int)(r2->y);
+                SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
+            }
+            if (ibi != -1)
+            {
+                SDL_Rect *r1 = gates_[i].getRect();
+                SDL_Rect *r2 = gates_[ibi].getRect();
+                x1 = (int)(r1->x - (r1->w >> 2) + r1->w);
+                y1 = (int)(r1->y + r1->h);
+                x2 = (int)(r2->x + (r2->w >> 1));
+                y2 = (int)(r2->y);
+                SDL_RenderDrawLine(renderer_, x1, r1->y, r2->x, r2->y);
+            }
+        }
+        else if (gates_[i].getDir() == G_EAST)
+        {
+        }
+        else if (gates_[i].getDir() == G_WEST)
+        {
         }
     }
 }

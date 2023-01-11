@@ -3,6 +3,7 @@
 
 #include <vector>
 
+// should add source/dest rects
 struct tile
 {
     // ID synonymous with vector index
