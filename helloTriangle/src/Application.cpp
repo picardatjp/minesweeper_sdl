@@ -5,17 +5,13 @@
 #include "SDL.h"
 #include "glad.h"
 
-GLuint gVertexArrayObject = 0;
-GLuint gVertexBufferObject = 0;
-
-GLuint gGraphicsPipelineShaderProgram = 0;
-
 const std::string gVertexShaderSource = "#version 460 core\n"
                                         "in vec4 position;\n"
                                         "void main()\n"
                                         "{\n"
                                         "   gl_Position = vec4(position.x, position.y, position.z, position.w);"
                                         "}\n";
+
 const std::string gFragmentShaderSource = "#version 460 core\n"
                                           "out vec4 color;\n"
                                           "void main()\n"
@@ -23,17 +19,18 @@ const std::string gFragmentShaderSource = "#version 460 core\n"
                                           "   color = vec4(1.0f, 0.5f, 0.0f, 1.0f);\n"
                                           "}\n";
 
-void VertexSpecification()
+void Application::VertexSpecification()
 {
     const std::vector<GLfloat> vertexPosition{
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
         0.0f, 0.5f, 0.0f};
-    glGenVertexArrays(1, &gVertexArrayObject);
-    glBindVertexArray(gVertexArrayObject);
 
-    glGenBuffers(1, &gVertexBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
+    glGenVertexArrays(1, &my_vao_);
+    glBindVertexArray(my_vao_);
+
+    glGenBuffers(1, &my_vbo_);
+    glBindBuffer(GL_ARRAY_BUFFER, my_vbo_);
     glBufferData(GL_ARRAY_BUFFER, vertexPosition.size() * sizeof(GLfloat), vertexPosition.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
@@ -43,40 +40,44 @@ void VertexSpecification()
     glDisableVertexAttribArray(0);
 }
 
-GLuint CompileShader(GLuint type, const std::string &source)
+GLuint Application::CompileShader(GLuint type, const std::string &source)
 {
     GLuint shaderObject;
     if (type == GL_VERTEX_SHADER)
     {
         shaderObject = glCreateShader(GL_VERTEX_SHADER);
-        // std::cout << "v ";
     }
     else if (type == GL_FRAGMENT_SHADER)
     {
         shaderObject = glCreateShader(GL_FRAGMENT_SHADER);
-        // std::cout << "f ";
     }
+
     const GLchar *src = (const GLchar *)source.c_str();
     glShaderSource(shaderObject, 1, &src, nullptr);
     glCompileShader(shaderObject);
+
     GLint success;
     glGetShaderiv(shaderObject, GL_COMPILE_STATUS, (GLint *)&success);
-    // std::cout << glGetError();
+
     if (success != GL_TRUE)
     {
         std::cout << "shader not compiled!";
+
         GLint len;
         glGetShaderiv(shaderObject, GL_INFO_LOG_LENGTH, &len);
         std::vector<GLchar> errorLog(len);
         glGetShaderInfoLog(shaderObject, len, &len, &errorLog[0]);
+
         for (GLchar c : errorLog)
             std::cout << c;
+
         glDeleteShader(shaderObject);
+        return 0;
     }
     return shaderObject;
 }
 
-GLuint CreateShaderProgram(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
+GLuint Application::CreateShaderProgram(const std::string &vertexShaderSource, const std::string &fragmentShaderSource)
 {
     GLuint programObject = glCreateProgram();
     GLuint myVertexShader = CompileShader(GL_VERTEX_SHADER, vertexShaderSource);
@@ -85,29 +86,37 @@ GLuint CreateShaderProgram(const std::string &vertexShaderSource, const std::str
     glAttachShader(programObject, myVertexShader);
     glAttachShader(programObject, myFragmentShader);
     glLinkProgram(programObject);
+
+    glDeleteShader(myVertexShader);
+    glDeleteShader(myFragmentShader);
+    glDetachShader(programObject, myVertexShader);
+    glDetachShader(programObject, myFragmentShader);
+
     GLint isLinked;
     glGetProgramiv(programObject, GL_LINK_STATUS, (GLint *)&isLinked);
+
     if (isLinked != GL_TRUE)
     {
         std::cout << "program not linked!\n";
+
         GLint len;
         glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &len);
         std::vector<GLchar> errorLog(len);
         glGetProgramInfoLog(programObject, len, &len, &errorLog[0]);
+
         for (GLchar c : errorLog)
             std::cout << c;
+
         glDeleteProgram(programObject);
-        glDeleteShader(myVertexShader);
-        glDeleteShader(myFragmentShader);
+        return 0;
     }
-    // std::cout << glGetError();
 
     return programObject;
 }
 
-void CreateGraphicsPipeline()
+void Application::CreateGraphicsPipeline()
 {
-    gGraphicsPipelineShaderProgram = CreateShaderProgram(gVertexShaderSource, gFragmentShaderSource);
+    shader_prog_ = CreateShaderProgram(gVertexShaderSource, gFragmentShaderSource);
 }
 
 void getOpenGLInfo()
@@ -119,27 +128,14 @@ void getOpenGLInfo()
 }
 
 // Application Constructor
-Application::Application()
-{
-}
+Application::Application() {}
 
 // Application Destructor
-Application::~Application()
-{
-}
+Application::~Application() {}
 
 // Application initializer function
 void Application::initSDL(const char *title, int xpos, int ypos, int width, int height, bool fullscreen)
 {
-    // flags
-    // int flags = 0;
-    // flags |= SDL_WINDOW_OPENGL;
-    // if (fullscreen)
-    // {
-    //     // add fullscreen to our flags
-    //     flags |= SDL_WINDOW_FULLSCREEN;
-    // }
-
     // SDL_Init returns 0 if everything went well
     if (SDL_Init(SDL_INIT_EVERYTHING) == 0)
     {
@@ -155,7 +151,6 @@ void Application::initSDL(const char *title, int xpos, int ypos, int width, int 
             std::cout << "Failed to create window." << std::endl;
 
         context_ = SDL_GL_CreateContext(window_);
-        std::cout << SDL_GetError();
         if (context_ == nullptr)
             std::cout << "Failed to create opengl context" << std::endl;
 
@@ -210,8 +205,7 @@ void Application::update()
     // update positions and states here
 }
 
-// our render function which draws to the screen
-void Application::render()
+void Application::draw()
 {
     /**********PRE DRAW*************/
     glDisable(GL_DEPTH_TEST);
@@ -221,15 +215,21 @@ void Application::render()
     glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(gGraphicsPipelineShaderProgram);
-    // std::cout << glGetError() << "\n";
+    glUseProgram(shader_prog_);
 
     /*************DRAW***************/
-    glBindVertexArray(gVertexArrayObject);
-    glBindBuffer(GL_ARRAY_BUFFER, gVertexBufferObject);
+    glBindVertexArray(my_vao_);
+    glBindBuffer(GL_ARRAY_BUFFER, my_vbo_);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
+    glUseProgram(0);
+}
+
+// our render function which draws to the screen
+void Application::render()
+{
+    draw();
     SDL_GL_SwapWindow(window_);
 }
 

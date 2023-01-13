@@ -1,7 +1,9 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include <string>
 #include "SDL.h"
+#include "glad.h"
 
 // our game class that handles basically everything
 class Application
@@ -14,6 +16,9 @@ private:
     SDL_GLContext context_ = nullptr;
     int WINDOW_HEIGHT_ = 600;
     int WINDOW_WIDTH_ = 900;
+    GLuint my_vao_ = 0;
+    GLuint my_vbo_ = 0;
+    GLuint shader_prog_ = 0;
 
 public:
     // constructor and destructor
@@ -25,12 +30,19 @@ public:
 
     void initOpenGL();
 
+    void CreateGraphicsPipeline();
+    GLuint CreateShaderProgram(const std::string &vertexShaderSource, const std::string &fragmentShaderSource);
+    void VertexSpecification();
+    GLuint CompileShader(GLuint type, const std::string &source);
+
     // handles events
     void handleEvents();
     // updates game objects
     void update();
     // refreshes app with updated info
     void render();
+    // drawing things to current buffer
+    void draw();
     // cleans game memory and stops SDL
     void clean();
 
