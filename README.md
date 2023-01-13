@@ -35,7 +35,6 @@ all are works in progress
 - pacman
 - karnaugh map
 - sudoku
--
 
 ## need to research
 
