@@ -1,2 +1,1 @@
-# tetris in sdl
-haven't really started yet
+# basic ui elements in sdl
