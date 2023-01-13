@@ -1,2 +1,1 @@
-# tetris in sdl
-haven't really started yet
+# connect 4 in sdl
