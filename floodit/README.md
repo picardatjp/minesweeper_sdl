@@ -1,2 +1,3 @@
-# tetris in sdl
-haven't really started yet
+# floodit in sdl
+## todo
+- button functionality
