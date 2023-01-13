@@ -1,5 +1,5 @@
 # logic gate simulation in sdl
-##todo
+## todo
 - make tree of gates, seeing which ones to update when a signal is changed
 - add text onto gate
 - add i/o ports to gates
