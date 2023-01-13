@@ -1,6 +1,5 @@
-# simple raycaster implementation with sdl
+# simple textured raycaster implementation with sdl
 
-textured
 heavily inspired by [lode's raycasting tutorial](https://lodev.org/cgtutor/raycasting.html)
 
 ## todo
