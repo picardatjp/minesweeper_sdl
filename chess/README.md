@@ -1,1 +1,1 @@
-# slide puzzle in sdl
+# chess in sdl
