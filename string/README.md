@@ -1,2 +1,5 @@
-# tetris in sdl
-haven't really started yet
+# sine wave generation in sdl
+
+## todo
+
+- make it work properly

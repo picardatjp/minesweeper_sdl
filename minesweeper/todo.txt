@@ -1,2 +1,0 @@
-be able to change number of bombs and board size
-make smiley button darker when you click on it

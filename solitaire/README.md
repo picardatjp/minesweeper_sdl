@@ -1,2 +1,5 @@
-# tetris in sdl
-haven't really started yet
+# solitaire in sdl
+
+## todo
+
+- make solitaire

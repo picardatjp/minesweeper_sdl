@@ -1,2 +1,3 @@
-# tetris in sdl
-haven't really started yet
+# geometry dash in sdl
+
+## todo

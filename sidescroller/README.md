@@ -1,2 +1,10 @@
-# tetris in sdl
-haven't really started yet
+# sidescroller game in sdl
+
+## todo
+
+- add character
+- add movement
+- add ground collision
+- add sprites
+- add sprite animation
+- add enemies
