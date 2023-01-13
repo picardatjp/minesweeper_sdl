@@ -1,0 +1,2 @@
+all:
+	g++ -Iinclude/sdl -Iinclude/glad -Iinclude/KHR -Iinclude/headers -Llib -o build/app src/*.cpp src/*.c -lmingw32 -lSDL2main -lSDL2
