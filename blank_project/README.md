@@ -1,2 +1,1 @@
-# tetris in sdl
-haven't really started yet
+# boilerplate for sdl projects
